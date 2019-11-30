@@ -1,0 +1,1 @@
+# spring-rest-security-core-boilerplate
