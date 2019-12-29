@@ -13,10 +13,13 @@ import org.springframework.stereotype.Service;
 
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
+import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
+import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
 import com.springrestsecuritycoreboilerplate.role.Role;
+import com.springrestsecuritycoreboilerplate.role.RoleRepository;
 import com.springrestsecuritycoreboilerplate.role.RoleService;
 
 
@@ -30,6 +33,9 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	RoleService roleService;
 
+	@Autowired
+	RoleRepository roleRepository;
+	
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -117,6 +123,12 @@ public class UserServiceImp implements UserService {
 		AppUser foundUser = userRepository.findByUsername(username);
 		return foundUser != null;
 	}
+	
+	private boolean doesEmailExist(String email) {
+		AppUser foundUser = userRepository.findByEmail(email);
+		return foundUser != null;
+	}
+
 
 	public AppUser getCurrrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -125,4 +137,16 @@ public class UserServiceImp implements UserService {
 		return currentUser;
 	}
 
+	@Override
+	public AppUser registerUser(AppUser appUser) throws EmailExistsException, UsernameExistsException {
+		if (doesEmailExist(appUser.getEmail())) {
+			throw new EmailExistsException(appUser.getEmail());
+		}
+		if (doesUsernameExist(appUser.getUsername())) {
+			throw new UsernameExistsException(appUser.getUsername());
+		}
+		appUser.setRole(roleRepository.findByName("ROLE_USER"));
+		appUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
+		return saveUser(appUser);
+	}
 }

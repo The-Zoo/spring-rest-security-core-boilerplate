@@ -25,6 +25,8 @@ public class AppUser implements Serializable {
 	@NotNull
 	private String password;
 	private Boolean canBeModified;
+	@NotNull
+	private String email;
 
 	@ManyToOne
 	private Role role;
@@ -77,12 +79,12 @@ public class AppUser implements Serializable {
 		this.canBeModified = canBeDeleted;
 	}
 
-//	public String getEmail() {
-//		return email;
-//	}
-//
-//	public void setEmail(String email) {
-//		this.email = email;
-//	}
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
 }
