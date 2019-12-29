@@ -63,6 +63,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
 		admin.setPassword(passwordEncoder.encode("root"));
 		admin.setRole(adminRole);
 		admin.setCanBeModified(false);
+		admin.setEmail("root@root.com");
 		userRepository.save(admin);
 
 		AppUser standartUser = new AppUser();
@@ -71,6 +72,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
 		standartUser.setPassword(passwordEncoder.encode("user"));
 		standartUser.setCanBeModified(true);
 		standartUser.setRole(userRole);
+		standartUser.setEmail("user@user.com");
 		userRepository.save(standartUser);
 
 		alreadySetup = true;

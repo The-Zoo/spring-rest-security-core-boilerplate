@@ -3,12 +3,16 @@ package com.springrestsecuritycoreboilerplate.user;
 import java.util.Optional;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
+import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
+import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
 
 public interface UserService {
 
+	AppUser registerUser(AppUser appUser) throws EmailExistsException, UsernameExistsException;
+	
 	AppUser saveUser(AppUser appUser);
 
 	AppUser findByUsername(String username);

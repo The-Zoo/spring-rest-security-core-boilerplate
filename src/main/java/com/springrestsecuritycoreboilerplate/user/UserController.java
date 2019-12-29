@@ -19,8 +19,10 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
+import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
+import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
 import com.springrestsecuritycoreboilerplate.response.ResponseObject;
 
@@ -31,6 +33,17 @@ public class UserController {
 	UserService userService;
 
 	ResponseObject responseObject;
+	
+	@RequestMapping(value = "/api/register", method = RequestMethod.POST)
+	public ResponseEntity<Object> registerUser(@RequestBody AppUser appUser) {
+		try {
+			return new ResponseEntity<>(userService.registerUser(appUser), HttpStatus.CREATED);
+		} catch (EmailExistsException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		} catch (UsernameExistsException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		}
+	}
 
 	@RequestMapping(value = "/api/users", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('PRIVILEGE_EDIT_USER')")
