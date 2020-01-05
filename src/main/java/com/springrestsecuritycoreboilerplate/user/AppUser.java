@@ -3,12 +3,16 @@ package com.springrestsecuritycoreboilerplate.user;
 import java.io.Serializable;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
+
+import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.role.Role;
 
 @Entity
@@ -30,6 +34,9 @@ public class AppUser implements Serializable {
 
 	@ManyToOne
 	private Role role;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	private VerificationToken token;
 
 	public Role getRole() {
 		return role;
@@ -37,6 +44,15 @@ public class AppUser implements Serializable {
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+	
+
+	public VerificationToken getToken() {
+		return token;
+	}
+
+	public void setToken(VerificationToken token) {
+		this.token = token;
 	}
 
 	public String getId() {
