@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,11 +19,10 @@ import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.role.Role;
 import com.springrestsecuritycoreboilerplate.role.RoleRepository;
 import com.springrestsecuritycoreboilerplate.role.RoleService;
-
-
 
 @Service
 public class UserServiceImp implements UserService {
@@ -35,7 +35,7 @@ public class UserServiceImp implements UserService {
 
 	@Autowired
 	RoleRepository roleRepository;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -123,12 +123,11 @@ public class UserServiceImp implements UserService {
 		AppUser foundUser = userRepository.findByUsername(username);
 		return foundUser != null;
 	}
-	
+
 	private boolean doesEmailExist(String email) {
 		AppUser foundUser = userRepository.findByEmail(email);
 		return foundUser != null;
 	}
-
 
 	public AppUser getCurrrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -147,6 +146,8 @@ public class UserServiceImp implements UserService {
 		}
 		appUser.setRole(roleRepository.findByName("ROLE_USER"));
 		appUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
+		appUser.setToken(new VerificationToken());
 		return saveUser(appUser);
 	}
+
 }

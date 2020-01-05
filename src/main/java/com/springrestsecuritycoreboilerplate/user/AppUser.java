@@ -2,6 +2,8 @@ package com.springrestsecuritycoreboilerplate.user;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -35,8 +37,8 @@ public class AppUser implements Serializable {
 	@ManyToOne
 	private Role role;
 	
-	@OneToOne(fetch = FetchType.EAGER)
-	private VerificationToken token;
+	@OneToOne(fetch = FetchType.EAGER, cascade= CascadeType.ALL)
+	private VerificationToken verificationToken;
 
 	public Role getRole() {
 		return role;
@@ -48,11 +50,11 @@ public class AppUser implements Serializable {
 	
 
 	public VerificationToken getToken() {
-		return token;
+		return verificationToken;
 	}
 
-	public void setToken(VerificationToken token) {
-		this.token = token;
+	public void setToken(VerificationToken verificationToken) {
+		this.verificationToken = verificationToken;
 	}
 
 	public String getId() {
