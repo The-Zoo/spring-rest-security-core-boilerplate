@@ -19,6 +19,7 @@ import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.mail.Mailer;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.role.Role;
@@ -36,6 +37,9 @@ public class UserServiceImp implements UserService {
 
 	@Autowired
 	RoleRepository roleRepository;
+	
+	@Autowired
+	private Mailer mailer;
 
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -151,7 +155,9 @@ public class UserServiceImp implements UserService {
 		appUser.setRole(roleRepository.findByName("ROLE_USER"));
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
 		appUser.setToken(new VerificationToken());
-		return saveUser(appUser);
+	    appUser= saveUser(appUser);
+	    mailer.sendRegistrationEmailMessage(appUser, appUser.getToken().getToken());
+	    return appUser;
 	}
 
 }
