@@ -1,21 +1,17 @@
 package com.springrestsecuritycoreboilerplate.user;
 
-import java.security.Principal;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.WebRequest;
 
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
@@ -24,6 +20,7 @@ import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.response.ResponseObject;
 
 @RestController
@@ -35,9 +32,9 @@ public class UserController {
 	ResponseObject responseObject;
 	
 	@RequestMapping(value = "/api/register", method = RequestMethod.POST)
-	public ResponseEntity<Object> registerUser(@RequestBody AppUser appUser) {
+	public ResponseEntity<Object> registerUser(@Valid @RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
 		try {
-			return new ResponseEntity<>(userService.registerUser(appUser), HttpStatus.CREATED);
+			return new ResponseEntity<>(userService.registerUser(userRegisterRequestDTO), HttpStatus.CREATED);
 		} catch (EmailExistsException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		} catch (UsernameExistsException e) {

@@ -20,6 +20,7 @@ import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
+import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.role.Role;
 import com.springrestsecuritycoreboilerplate.role.RoleRepository;
 import com.springrestsecuritycoreboilerplate.role.RoleService;
@@ -137,15 +138,18 @@ public class UserServiceImp implements UserService {
 	}
 
 	@Override
-	public AppUser registerUser(AppUser appUser) throws EmailExistsException, UsernameExistsException {
-		if (doesEmailExist(appUser.getEmail())) {
-			throw new EmailExistsException(appUser.getEmail());
+	public AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO) throws EmailExistsException, UsernameExistsException {
+		if (doesEmailExist(userRegisterRequestDTO.getEmail())) {
+			throw new EmailExistsException(userRegisterRequestDTO.getEmail());
 		}
-		if (doesUsernameExist(appUser.getUsername())) {
-			throw new UsernameExistsException(appUser.getUsername());
+		if (doesUsernameExist(userRegisterRequestDTO.getUsername())) {
+			throw new UsernameExistsException(userRegisterRequestDTO.getUsername());
 		}
+		AppUser appUser = new AppUser();
+		appUser.setUsername(userRegisterRequestDTO.getUsername());
+		appUser.setEmail(userRegisterRequestDTO.getEmail());
 		appUser.setRole(roleRepository.findByName("ROLE_USER"));
-		appUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
+		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
 		appUser.setToken(new VerificationToken());
 		return saveUser(appUser);
 	}
