@@ -8,10 +8,11 @@ import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 
 public interface UserService {
 
-	AppUser registerUser(AppUser appUser) throws EmailExistsException, UsernameExistsException;
+	AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO) throws EmailExistsException, UsernameExistsException;
 	
 	AppUser saveUser(AppUser appUser);
 
