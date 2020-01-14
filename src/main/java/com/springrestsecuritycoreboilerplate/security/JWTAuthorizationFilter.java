@@ -27,11 +27,15 @@ import javax.servlet.http.HttpServletResponse;
 import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.HEADER_STRING;
 import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.SECRET;
 import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.TOKEN_PREFIX;
+import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.AUTH;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -66,22 +70,28 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 		String token = request.getHeader(HEADER_STRING);
 		if (token != null) {
-
 			Claims claims = Jwts.parser().setSigningKey(SECRET.getBytes())
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody();
 			String user = claims.getSubject();
-			try {
-				AppUser currentUser = userRepository.findByUsername(user);
-
-				Collection<GrantedAuthority> authorityList = new ArrayList<GrantedAuthority>();
-				authorityList = (Collection<GrantedAuthority>) roleService.getAuthorities(currentUser.getRole());
-
-				if (currentUser != null) {
-					return new UsernamePasswordAuthenticationToken(user, null, authorityList);
-				}
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
+			Collection<? extends GrantedAuthority> authorities =
+		            Arrays.stream(claims.get(AUTH).toString().split(","))
+		                .map(SimpleGrantedAuthority::new)
+		                .collect(Collectors.toList());
+			
+			if (user != null) {
+				return new UsernamePasswordAuthenticationToken(user, null, authorities);
 			}
+			
+//			try {
+//				AppUser currentUser = userRepository.findByUsername(user);
+//				Collection<GrantedAuthority> authorityList = new ArrayList<GrantedAuthority>();
+//				authorityList = (Collection<GrantedAuthority>) roleService.getAuthorities(currentUser.getRole());
+//				if (currentUser != null) {
+//					return new UsernamePasswordAuthenticationToken(user, null, authorityList);
+//				}
+//			} catch (Exception e) {
+//				System.out.println(e.getMessage());
+//			}
 
 			return null;
 		}

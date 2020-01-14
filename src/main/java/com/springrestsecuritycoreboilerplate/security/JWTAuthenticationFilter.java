@@ -28,6 +28,7 @@ import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.E
 import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.HEADER_STRING;
 import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.SECRET;
 import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.TOKEN_PREFIX;
+import static com.springrestsecuritycoreboilerplate.security.SecurityConstants.AUTH;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,15 +62,25 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
+		String authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+				.collect(Collectors.joining(","));
 		User user = (User) auth.getPrincipal();
-		Claims claims = Jwts.claims().setSubject(user.getUsername());
-		claims.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME));
-		String token = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS256, SECRET.getBytes()).compact();
+		String token = createToken(user.getUsername(), authorities);
 		res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + token);
 		LoginResponse loginResponse = makeLoginResponse(user);
 		String jwtResponse = objectMapper.writeValueAsString(loginResponse);
 		res.setContentType("application/json");
 		res.getWriter().write(jwtResponse);
+	}
+	
+	private String createToken(String username, String authorities)
+	{
+		return Jwts.builder()
+	            .setSubject(username)
+	            .claim(AUTH, authorities)
+	            .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+	            .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+	            .compact();
 	}
 
 	private LoginResponse makeLoginResponse(User user) {
