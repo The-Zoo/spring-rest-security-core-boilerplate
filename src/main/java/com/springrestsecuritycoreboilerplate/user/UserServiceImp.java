@@ -178,13 +178,13 @@ public class UserServiceImp implements UserService {
 	}
 
 	@Override
-	public void verifyUser(String token) throws AccountNotFoundException, ExpiredTokenException {
+	public void verifyUser(String token) throws AccountNotFoundException, ExpiredTokenException, VerifiedUserException {
 		AppUser foundUser = userRepository.findByVerificationToken_token(token);
 		if (foundUser == null) {
 			throw new AccountNotFoundException("Not found user with token");
 		}
 		if (foundUser.getVerified()) {
-			System.out.println("User Already Verified");
+			throw new VerifiedUserException(foundUser.getEmail());
 		}
 		if ((foundUser.getToken().getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
 			throw new ExpiredTokenException(foundUser.getToken().getExpiryDate());
@@ -200,7 +200,7 @@ public class UserServiceImp implements UserService {
 		if (foundUser == null)
 			throw new AccountNotFoundException(resendVerificationTokenDTO.getEmail());
 
-		if (foundUser.getVerified() == true)
+		if (foundUser.getVerified())
 			throw new VerifiedUserException(foundUser.getEmail());
 
 		resendVerificationToken(foundUser);
