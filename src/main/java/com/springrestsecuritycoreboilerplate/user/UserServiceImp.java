@@ -1,6 +1,7 @@
 package com.springrestsecuritycoreboilerplate.user;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,8 +20,12 @@ import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
+import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.mail.Mailer;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
+import com.springrestsecuritycoreboilerplate.registration.VerificationTokenService;
+import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.role.Role;
 import com.springrestsecuritycoreboilerplate.role.RoleRepository;
@@ -44,6 +49,9 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+	@Autowired
+	private VerificationTokenService verificationTokenService;
+	
 	@Override
 	public AppUser saveUser(AppUser appUser) {
 		return userRepository.save(appUser);
@@ -66,6 +74,12 @@ public class UserServiceImp implements UserService {
 	@Override
 	public AppUser findByUsername(String username) {
 		return userRepository.findByUsername(username);
+	}
+	
+	@Override 
+	public AppUser findUserByEmail(String email)
+	{
+		return userRepository.findByEmail(email);
 	}
 
 	@Override
@@ -156,8 +170,27 @@ public class UserServiceImp implements UserService {
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
 		appUser.setToken(new VerificationToken());
 	    appUser= saveUser(appUser);
-	    mailer.sendRegistrationEmailMessage(appUser, appUser.getToken().getToken());
+	    mailer.sendVerificationEmailMessage(appUser, "Registration Confirmation");
 	    return appUser;
+	}
+
+	@Override
+	public AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO)
+			throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException {
+		AppUser foundUser = findUserByEmail(resendVerificationTokenDTO.getEmail());
+		if (foundUser == null)
+			throw new AccountNotFoundException(resendVerificationTokenDTO.getEmail());
+		
+		if (foundUser.getVerified() == true)
+			throw new VerifiedUserException(foundUser.getEmail());
+		
+		resendVerificationToken(foundUser);
+		return foundUser;
+	}
+
+	private void resendVerificationToken(AppUser user) throws VerificationTokenNotFoundException {
+		VerificationToken updatedVerificationToken =  verificationTokenService.updateToken(user);
+	    mailer.sendVerificationEmailMessage(updatedVerificationToken.getUser(), "Resend Verify Token");
 	}
 
 }

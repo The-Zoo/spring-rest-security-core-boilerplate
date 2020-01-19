@@ -20,6 +20,9 @@ import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
+import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
+import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.response.ResponseObject;
 
@@ -39,6 +42,19 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		} catch (UsernameExistsException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		}
+	}
+	
+	@RequestMapping(value = "/api/resend-token", method = RequestMethod.POST)
+	public ResponseEntity<Object> resendVerificationToken(@Valid @RequestBody ResendVerificationTokenDTO resendVerificationTokenDTO) {
+		try {
+			return new ResponseEntity<>(userService.resendVerificationToken(resendVerificationTokenDTO),HttpStatus.CREATED);
+		} catch (AccountNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (VerifiedUserException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		} catch (VerificationTokenNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 	}
 
