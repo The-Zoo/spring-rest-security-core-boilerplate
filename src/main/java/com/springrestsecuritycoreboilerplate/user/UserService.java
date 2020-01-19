@@ -5,6 +5,7 @@ import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
+import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -15,8 +16,9 @@ import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 
 public interface UserService {
 
-	AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO) throws EmailExistsException, UsernameExistsException;
-	
+	AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO)
+			throws EmailExistsException, UsernameExistsException;
+
 	AppUser saveUser(AppUser appUser);
 
 	AppUser findByUsername(String username);
@@ -35,8 +37,11 @@ public interface UserService {
 			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException;
 
 	AppUser getCurrrentUser();
-	
-	AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO) throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException;
+
+	void verifyUser(String token) throws AccountNotFoundException, ExpiredTokenException;
+
+	AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO)
+			throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException;
 
 	AppUser findUserByEmail(String email);
 }

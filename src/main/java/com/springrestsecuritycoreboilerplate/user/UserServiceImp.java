@@ -1,6 +1,7 @@
 package com.springrestsecuritycoreboilerplate.user;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
+import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -42,7 +44,7 @@ public class UserServiceImp implements UserService {
 
 	@Autowired
 	RoleRepository roleRepository;
-	
+
 	@Autowired
 	private Mailer mailer;
 
@@ -51,7 +53,7 @@ public class UserServiceImp implements UserService {
 
 	@Autowired
 	private VerificationTokenService verificationTokenService;
-	
+
 	@Override
 	public AppUser saveUser(AppUser appUser) {
 		return userRepository.save(appUser);
@@ -75,10 +77,9 @@ public class UserServiceImp implements UserService {
 	public AppUser findByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}
-	
-	@Override 
-	public AppUser findUserByEmail(String email)
-	{
+
+	@Override
+	public AppUser findUserByEmail(String email) {
 		return userRepository.findByEmail(email);
 	}
 
@@ -156,7 +157,8 @@ public class UserServiceImp implements UserService {
 	}
 
 	@Override
-	public AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO) throws EmailExistsException, UsernameExistsException {
+	public AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO)
+			throws EmailExistsException, UsernameExistsException {
 		if (doesEmailExist(userRegisterRequestDTO.getEmail())) {
 			throw new EmailExistsException(userRegisterRequestDTO.getEmail());
 		}
@@ -169,9 +171,26 @@ public class UserServiceImp implements UserService {
 		appUser.setRole(roleRepository.findByName("ROLE_USER"));
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
 		appUser.setToken(new VerificationToken());
-	    appUser= saveUser(appUser);
-	    mailer.sendVerificationEmailMessage(appUser, "Registration Confirmation");
-	    return appUser;
+
+		appUser = saveUser(appUser);
+		mailer.sendVerificationEmailMessage(appUser, "Registration Confirmation");
+		return appUser;
+	}
+
+	@Override
+	public void verifyUser(String token) throws AccountNotFoundException, ExpiredTokenException {
+		AppUser foundUser = userRepository.findByVerificationToken_token(token);
+		if (foundUser == null) {
+			throw new AccountNotFoundException("Not found user with token");
+		}
+		if (foundUser.getVerified()) {
+			System.out.println("User Already Verified");
+		}
+		if ((foundUser.getToken().getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
+			throw new ExpiredTokenException(foundUser.getToken().getExpiryDate());
+		}
+		foundUser.setVerified(true);
+		saveUser(foundUser);
 	}
 
 	@Override
@@ -180,17 +199,17 @@ public class UserServiceImp implements UserService {
 		AppUser foundUser = findUserByEmail(resendVerificationTokenDTO.getEmail());
 		if (foundUser == null)
 			throw new AccountNotFoundException(resendVerificationTokenDTO.getEmail());
-		
+
 		if (foundUser.getVerified() == true)
 			throw new VerifiedUserException(foundUser.getEmail());
-		
+
 		resendVerificationToken(foundUser);
 		return foundUser;
 	}
 
 	private void resendVerificationToken(AppUser user) throws VerificationTokenNotFoundException {
-		VerificationToken updatedVerificationToken =  verificationTokenService.updateToken(user);
-	    mailer.sendVerificationEmailMessage(updatedVerificationToken.getUser(), "Resend Verify Token");
+		VerificationToken updatedVerificationToken = verificationTokenService.updateToken(user);
+		mailer.sendVerificationEmailMessage(updatedVerificationToken.getUser(), "Resend Verify Token");
 	}
 
 }
