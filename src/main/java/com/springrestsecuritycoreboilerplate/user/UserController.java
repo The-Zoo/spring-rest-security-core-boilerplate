@@ -1,6 +1,5 @@
 package com.springrestsecuritycoreboilerplate.user;
 
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
+import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -30,7 +30,7 @@ public class UserController {
 	UserService userService;
 
 	ResponseObject responseObject;
-	
+
 	@RequestMapping(value = "/api/register", method = RequestMethod.POST)
 	public ResponseEntity<Object> registerUser(@Valid @RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
 		try {
@@ -96,6 +96,18 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (RoleNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@RequestMapping(value = "/api/verify-user/{token}", method = RequestMethod.GET)
+	public ResponseEntity<Object> verifyUser(@PathVariable("token") String token) {
+		try {
+			userService.verifyUser(token);
+			return new ResponseEntity<>("User Verified", HttpStatus.ACCEPTED);
+		} catch (AccountNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (ExpiredTokenException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
 		}
 	}
 

@@ -5,6 +5,7 @@ import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
+import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -32,4 +33,6 @@ public interface UserService {
 			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException;
 
 	AppUser getCurrrentUser();
+	
+	void verifyUser(String token) throws AccountNotFoundException,ExpiredTokenException;
 }
