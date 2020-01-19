@@ -8,6 +8,9 @@ import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
+import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
+import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 
 public interface UserService {
@@ -32,4 +35,8 @@ public interface UserService {
 			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException;
 
 	AppUser getCurrrentUser();
+	
+	AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO) throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException;
+
+	AppUser findUserByEmail(String email);
 }

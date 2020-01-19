@@ -14,6 +14,7 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
 
 @Entity
@@ -27,7 +28,7 @@ public class VerificationToken implements Serializable {
 	private String id;
 
 	private String token;
-
+	@JsonIgnore
 	@OneToOne(targetEntity = AppUser.class, fetch = FetchType.EAGER, mappedBy = "verificationToken")
 	private AppUser user;
 
@@ -38,7 +39,12 @@ public class VerificationToken implements Serializable {
 		this.token = UUID.randomUUID().toString();
 		this.expiryDate = calculateExpiryDate(EXPIRATION);
 	}
-
+	
+	public void updateToken() {
+		this.token = UUID.randomUUID().toString();
+		this.expiryDate = calculateExpiryDate(EXPIRATION);
+	}
+	
 	public String getId() {
 		return id;
 	}

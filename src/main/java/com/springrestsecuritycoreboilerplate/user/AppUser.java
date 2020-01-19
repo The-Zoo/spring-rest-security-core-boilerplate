@@ -33,7 +33,8 @@ public class AppUser implements Serializable {
 	private Boolean canBeModified;
 	@NotNull
 	private String email;
-
+	@NotNull
+	private Boolean verified = false;
 	@ManyToOne
 	private Role role;
 	
@@ -103,6 +104,14 @@ public class AppUser implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
 	}
 
 }
