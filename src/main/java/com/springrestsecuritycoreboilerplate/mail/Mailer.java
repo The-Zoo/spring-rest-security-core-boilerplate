@@ -23,13 +23,13 @@ public class Mailer implements Serializable{
 	private Environment env;
 
 	
-	public void sendRegistrationEmailMessage(final AppUser user, final String token) {
+	public void sendVerificationEmailMessage(final AppUser user, final String mailSubject) {
 		final String recipientAddress = user.getEmail();
-		final String subject = "Registration Confirmation";
+		final String subject = mailSubject;
 		final SimpleMailMessage email = new SimpleMailMessage();
 		email.setTo(recipientAddress);
 		email.setSubject(subject);
-		email.setText("Token is " + token);
+		email.setText("Token is " + user.getToken().getToken());
 		email.setFrom(env.getProperty("support.email"));
 		mailSender.send(email);
 	}

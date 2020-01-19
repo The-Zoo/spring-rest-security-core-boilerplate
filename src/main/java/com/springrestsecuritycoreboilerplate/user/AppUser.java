@@ -34,12 +34,12 @@ public class AppUser implements Serializable {
 	@NotNull
 	private String email;
 	@NotNull
-	private Boolean verified=false;
+	private Boolean verified = false;
 
 	@ManyToOne
 	private Role role;
-	
-	@OneToOne(fetch = FetchType.EAGER, cascade= CascadeType.ALL)
+
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private VerificationToken verificationToken;
 
 	public Role getRole() {
@@ -49,7 +49,6 @@ public class AppUser implements Serializable {
 	public void setRole(Role role) {
 		this.role = role;
 	}
-	
 
 	public VerificationToken getToken() {
 		return verificationToken;
