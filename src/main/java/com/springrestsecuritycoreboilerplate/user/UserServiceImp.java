@@ -22,11 +22,13 @@ import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.exception.ValueComprasionException;
 import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.mail.Mailer;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.registration.VerificationTokenService;
+import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.role.Role;
@@ -55,7 +57,7 @@ public class UserServiceImp implements UserService {
 	private VerificationTokenService verificationTokenService;
 
 	@Override
-	public AppUser saveUser(AppUser appUser) {
+	public AppUser saveOrUpdateUser(AppUser appUser) {
 		return userRepository.save(appUser);
 	}
 
@@ -96,7 +98,7 @@ public class UserServiceImp implements UserService {
 		appUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
 		appUser.setRole(foundRole);
 		appUser.setCanBeModified(true);
-		return saveUser(appUser);
+		return saveOrUpdateUser(appUser);
 	}
 
 	@Override
@@ -121,7 +123,7 @@ public class UserServiceImp implements UserService {
 		foundUser.setRole(foundRole);
 		foundUser.setUsername(appUser.getUsername());
 		foundUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
-		return saveUser(foundUser);
+		return saveOrUpdateUser(foundUser);
 
 	}
 
@@ -149,7 +151,7 @@ public class UserServiceImp implements UserService {
 		return foundUser != null;
 	}
 
-	public AppUser getCurrrentUser() {
+	public AppUser getCurrrentUserByAuth() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
 		AppUser currentUser = findByUsername(currentPrincipalName);
@@ -172,7 +174,7 @@ public class UserServiceImp implements UserService {
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
 		appUser.setToken(new VerificationToken());
 
-		appUser = saveUser(appUser);
+		appUser = saveOrUpdateUser(appUser);
 		mailer.sendVerificationEmailMessage(appUser, "Registration Confirmation");
 		return appUser;
 	}
@@ -190,7 +192,7 @@ public class UserServiceImp implements UserService {
 			throw new ExpiredTokenException(foundUser.getToken().getExpiryDate());
 		}
 		foundUser.setVerified(true);
-		saveUser(foundUser);
+		saveOrUpdateUser(foundUser);
 	}
 
 	@Override
@@ -212,4 +214,28 @@ public class UserServiceImp implements UserService {
 		mailer.sendVerificationEmailMessage(updatedVerificationToken.getUser(), "Resend Verify Token");
 	}
 
+	@Override
+	public AppUser changeUserPassword(PasswordChangeRequestDTO passwordChangeRequestDTO)
+			throws ValueComprasionException, AccountNotFoundException {
+		if (!passwordChangeRequestDTO.getNewPassword1().equals(passwordChangeRequestDTO.getNewPassword2())) {
+			throw new ValueComprasionException("Passwords are not equal");
+		}
+		AppUser foundUser = getAppUserById(passwordChangeRequestDTO.getUserId());
+		if (foundUser == null) {
+			throw new AccountNotFoundException("Account is not found");
+		}
+		if (!foundUser.getUsername().equals(getCurrrentUsernameByAuth())) {
+			throw new ValueComprasionException("Auth Failed!");
+		}
+		if (!bCryptPasswordEncoder.matches(passwordChangeRequestDTO.getCurrentPassword(), foundUser.getPassword())) {
+			throw new ValueComprasionException("Old password is not correct");
+		}
+		foundUser.setPassword(bCryptPasswordEncoder.encode(passwordChangeRequestDTO.getNewPassword1()));
+		return saveOrUpdateUser(foundUser);
+	}
+
+	public String getCurrrentUsernameByAuth() {
+		return SecurityContextHolder.getContext().getAuthentication().getName();
+	}
+	
 }

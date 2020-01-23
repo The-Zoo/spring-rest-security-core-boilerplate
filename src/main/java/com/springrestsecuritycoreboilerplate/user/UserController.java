@@ -20,8 +20,10 @@ import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
+import com.springrestsecuritycoreboilerplate.exception.ValueComprasionException;
 import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
+import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.response.ResponseObject;
@@ -127,6 +129,18 @@ public class UserController {
 		} catch (VerifiedUserException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		}
+	}
+	
+	@RequestMapping(value = "/api/change-password", method = RequestMethod.POST)
+	public ResponseEntity<Object> changePassword(@Valid @RequestBody PasswordChangeRequestDTO passwordChangeRequestDTO) {
+		try {
+			return new ResponseEntity<>(userService.changeUserPassword(passwordChangeRequestDTO), HttpStatus.ACCEPTED);
+		} catch (ValueComprasionException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+		} catch (AccountNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+
 	}
 
 }
