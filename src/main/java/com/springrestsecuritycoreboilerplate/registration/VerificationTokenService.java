@@ -9,4 +9,8 @@ public interface VerificationTokenService {
 
 	VerificationToken updateToken(AppUser appUser) throws VerificationTokenNotFoundException;
 
+	void deleteVerificationToken(VerificationToken verificationToken);
+
+	void deleteVerificationToken(String token);
+
 }

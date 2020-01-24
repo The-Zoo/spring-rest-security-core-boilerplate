@@ -19,10 +19,20 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
 	@Override
 	public VerificationToken updateToken(AppUser appUser) throws VerificationTokenNotFoundException {
-		if(appUser.getToken()==null)
+		if (appUser.getToken() == null)
 			throw new VerificationTokenNotFoundException("NOT FOUND");
 		VerificationToken oldToken = appUser.getToken();
 		oldToken.updateToken();
 		return saveOrUpdateVerificationToken(oldToken);
+	}
+
+	@Override
+	public void deleteVerificationToken(VerificationToken verificationToken) {
+		verificationTokenRepository.delete(verificationToken);
+	}
+
+	@Override
+	public void deleteVerificationToken(String token) {
+		verificationTokenRepository.removeByToken(token);
 	}
 }
