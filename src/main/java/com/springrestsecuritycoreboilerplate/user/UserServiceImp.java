@@ -192,7 +192,9 @@ public class UserServiceImp implements UserService {
 			throw new ExpiredTokenException(foundUser.getToken().getExpiryDate());
 		}
 		foundUser.setVerified(true);
+		foundUser.setToken(null);
 		saveOrUpdateUser(foundUser);
+		verificationTokenService.deleteVerificationToken(token);
 	}
 
 	@Override
