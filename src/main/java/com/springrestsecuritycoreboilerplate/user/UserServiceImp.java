@@ -172,7 +172,7 @@ public class UserServiceImp implements UserService {
 		appUser.setEmail(userRegisterRequestDTO.getEmail());
 		appUser.setRole(roleRepository.findByName("ROLE_USER"));
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
-		appUser.setToken(new VerificationToken());
+		appUser.setVerificationToken(new VerificationToken());
 
 		appUser = saveOrUpdateUser(appUser);
 		mailer.sendVerificationEmailMessage(appUser, "Registration Confirmation");
@@ -188,11 +188,11 @@ public class UserServiceImp implements UserService {
 		if (foundUser.getVerified()) {
 			throw new VerifiedUserException(foundUser.getEmail());
 		}
-		if ((foundUser.getToken().getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
-			throw new ExpiredTokenException(foundUser.getToken().getExpiryDate());
+		if ((foundUser.getVerificationToken().getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
+			throw new ExpiredTokenException(foundUser.getVerificationToken().getExpiryDate());
 		}
 		foundUser.setVerified(true);
-		foundUser.setToken(null);
+		foundUser.setVerificationToken(null);
 		saveOrUpdateUser(foundUser);
 		verificationTokenService.deleteVerificationToken(token);
 	}

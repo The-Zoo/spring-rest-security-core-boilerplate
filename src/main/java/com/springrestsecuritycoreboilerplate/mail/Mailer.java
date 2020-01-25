@@ -29,7 +29,7 @@ public class Mailer implements Serializable{
 		final SimpleMailMessage email = new SimpleMailMessage();
 		email.setTo(recipientAddress);
 		email.setSubject(subject);
-		email.setText("Token is " + user.getToken().getToken());
+		email.setText("Token is " + user.getVerificationToken().getToken());
 		email.setFrom(env.getProperty("support.email"));
 		mailSender.send(email);
 	}

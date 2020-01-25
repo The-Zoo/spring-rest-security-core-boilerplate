@@ -50,11 +50,11 @@ public class AppUser implements Serializable {
 		this.role = role;
 	}
 
-	public VerificationToken getToken() {
+	public VerificationToken getVerificationToken() {
 		return verificationToken;
 	}
 
-	public void setToken(VerificationToken verificationToken) {
+	public void setVerificationToken(VerificationToken verificationToken) {
 		this.verificationToken = verificationToken;
 	}
 
