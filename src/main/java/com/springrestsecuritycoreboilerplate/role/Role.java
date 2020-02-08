@@ -15,13 +15,14 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springrestsecuritycoreboilerplate.common.BaseEntity;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
 
 import javax.persistence.JoinColumn;
 
 @Entity
 @Table(name = "ROLE")
-public class Role implements Serializable {
+public class Role extends BaseEntity implements Serializable {
 
 	@Id
 	@GeneratedValue(generator = "hibernate-uuid")

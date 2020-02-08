@@ -16,10 +16,11 @@ import javax.persistence.OneToOne;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springrestsecuritycoreboilerplate.common.BaseEntity;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
 
 @Entity
-public class VerificationToken implements Serializable {
+public class VerificationToken extends BaseEntity implements Serializable {
 
 	private static final int EXPIRATION = 60 * 24;
 
@@ -35,10 +36,8 @@ public class VerificationToken implements Serializable {
 
 	private Date expiryDate;
 
-	private Boolean deleted = false;
-
 	public VerificationToken() {
-
+		super();
 	}
 
 	public VerificationToken(AppUser user) {
@@ -90,14 +89,6 @@ public class VerificationToken implements Serializable {
 		cal.setTime(new Timestamp(cal.getTime().getTime()));
 		cal.add(Calendar.MINUTE, expiryTimeInMinutes);
 		return new Date(cal.getTime().getTime());
-	}
-
-	public Boolean getDeleted() {
-		return deleted;
-	}
-
-	public void setDeleted(Boolean deleted) {
-		this.deleted = deleted;
 	}
 
 }
