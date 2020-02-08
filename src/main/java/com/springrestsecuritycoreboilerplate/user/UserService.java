@@ -40,7 +40,7 @@ public interface UserService {
 
 	AppUser getCurrrentUserByAuth();
 
-	void verifyUser(String token) throws AccountNotFoundException, ExpiredTokenException, VerifiedUserException;
+	void verifyUser(String token) throws VerificationTokenNotFoundException,AccountNotFoundException, ExpiredTokenException, VerifiedUserException;
 
 	AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO)
 			throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException;
