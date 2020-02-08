@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -29,22 +30,29 @@ public class VerificationToken implements Serializable {
 
 	private String token;
 	@JsonIgnore
-	@OneToOne(targetEntity = AppUser.class, fetch = FetchType.EAGER, mappedBy = "verificationToken")
+	@ManyToOne(fetch = FetchType.EAGER)
 	private AppUser user;
 
 	private Date expiryDate;
 
+	private Boolean deleted = false;
+
 	public VerificationToken() {
+
+	}
+
+	public VerificationToken(AppUser user) {
 		super();
 		this.token = UUID.randomUUID().toString();
 		this.expiryDate = calculateExpiryDate(EXPIRATION);
+		this.user = user;
 	}
-	
+
 	public void updateToken() {
 		this.token = UUID.randomUUID().toString();
 		this.expiryDate = calculateExpiryDate(EXPIRATION);
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -82,6 +90,14 @@ public class VerificationToken implements Serializable {
 		cal.setTime(new Timestamp(cal.getTime().getTime()));
 		cal.add(Calendar.MINUTE, expiryTimeInMinutes);
 		return new Date(cal.getTime().getTime());
+	}
+
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
 	}
 
 }

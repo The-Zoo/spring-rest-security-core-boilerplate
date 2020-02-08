@@ -46,11 +46,13 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		}
 	}
-	
+
 	@RequestMapping(value = "/api/resend-token", method = RequestMethod.POST)
-	public ResponseEntity<Object> resendVerificationToken(@Valid @RequestBody ResendVerificationTokenDTO resendVerificationTokenDTO) {
+	public ResponseEntity<Object> resendVerificationToken(
+			@Valid @RequestBody ResendVerificationTokenDTO resendVerificationTokenDTO) {
 		try {
-			return new ResponseEntity<>(userService.resendVerificationToken(resendVerificationTokenDTO),HttpStatus.CREATED);
+			return new ResponseEntity<>(userService.resendVerificationToken(resendVerificationTokenDTO),
+					HttpStatus.CREATED);
 		} catch (AccountNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (VerifiedUserException e) {
@@ -122,6 +124,9 @@ public class UserController {
 		try {
 			userService.verifyUser(token);
 			return new ResponseEntity<>("User Verified", HttpStatus.ACCEPTED);
+
+		} catch (VerificationTokenNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (AccountNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (ExpiredTokenException e) {
@@ -130,9 +135,10 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		}
 	}
-	
+
 	@RequestMapping(value = "/api/change-password", method = RequestMethod.POST)
-	public ResponseEntity<Object> changePassword(@Valid @RequestBody PasswordChangeRequestDTO passwordChangeRequestDTO) {
+	public ResponseEntity<Object> changePassword(
+			@Valid @RequestBody PasswordChangeRequestDTO passwordChangeRequestDTO) {
 		try {
 			return new ResponseEntity<>(userService.changeUserPassword(passwordChangeRequestDTO), HttpStatus.ACCEPTED);
 		} catch (ValueComprasionException e) {

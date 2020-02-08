@@ -1,6 +1,8 @@
 package com.springrestsecuritycoreboilerplate.user;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,10 +11,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
 
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.role.Role;
@@ -39,8 +43,9 @@ public class AppUser implements Serializable {
 	@ManyToOne
 	private Role role;
 
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	private VerificationToken verificationToken;
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+	@Where(clause = "deleted=false")
+	private Set<VerificationToken> verificationToken = new HashSet<VerificationToken>();
 
 	public Role getRole() {
 		return role;
@@ -50,11 +55,11 @@ public class AppUser implements Serializable {
 		this.role = role;
 	}
 
-	public VerificationToken getVerificationToken() {
+	public Set<VerificationToken> getVerificationToken() {
 		return verificationToken;
 	}
 
-	public void setVerificationToken(VerificationToken verificationToken) {
+	public void setVerificationToken(Set<VerificationToken> verificationToken) {
 		this.verificationToken = verificationToken;
 	}
 

@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
@@ -27,6 +28,7 @@ import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFound
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.mail.Mailer;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
+import com.springrestsecuritycoreboilerplate.registration.VerificationTokenRepository;
 import com.springrestsecuritycoreboilerplate.registration.VerificationTokenService;
 import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
@@ -37,6 +39,8 @@ import com.springrestsecuritycoreboilerplate.role.RoleService;
 
 @Service
 public class UserServiceImp implements UserService {
+	@Autowired
+	VerificationTokenRepository verificationTokenRepository;
 
 	@Autowired
 	UserRepository userRepository;
@@ -158,6 +162,7 @@ public class UserServiceImp implements UserService {
 		return currentUser;
 	}
 
+	@Transactional
 	@Override
 	public AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO)
 			throws EmailExistsException, UsernameExistsException {
@@ -172,29 +177,33 @@ public class UserServiceImp implements UserService {
 		appUser.setEmail(userRegisterRequestDTO.getEmail());
 		appUser.setRole(roleRepository.findByName("ROLE_USER"));
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
-		appUser.setVerificationToken(new VerificationToken());
-
+		VerificationToken recreatedVerificationToken = new VerificationToken(appUser);
+		appUser.getVerificationToken().add(recreatedVerificationToken);
 		appUser = saveOrUpdateUser(appUser);
-		mailer.sendVerificationEmailMessage(appUser, "Registration Confirmation");
+		mailer.sendVerificationEmailMessage(appUser, recreatedVerificationToken, "Registration Confirmation");
 		return appUser;
 	}
 
 	@Override
-	public void verifyUser(String token) throws AccountNotFoundException, ExpiredTokenException, VerifiedUserException {
-		AppUser foundUser = userRepository.findByVerificationToken_token(token);
+	public void verifyUser(String token) throws VerificationTokenNotFoundException, AccountNotFoundException,
+			ExpiredTokenException, VerifiedUserException {
+		VerificationToken foundVerificationToken = verificationTokenRepository.findByTokenAndDeleted(token, false);
+		if (foundVerificationToken == null) {
+			throw new VerificationTokenNotFoundException("Verification token is not valid");
+		}
+		if ((foundVerificationToken.getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
+			throw new ExpiredTokenException(foundVerificationToken.getExpiryDate());
+		}
+		AppUser foundUser = foundVerificationToken.getUser();
 		if (foundUser == null) {
 			throw new AccountNotFoundException("Not found user with token");
 		}
 		if (foundUser.getVerified()) {
-			throw new VerifiedUserException(foundUser.getEmail());
-		}
-		if ((foundUser.getVerificationToken().getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
-			throw new ExpiredTokenException(foundUser.getVerificationToken().getExpiryDate());
+			throw new VerifiedUserException(foundVerificationToken.getUser().getEmail());
 		}
 		foundUser.setVerified(true);
-		foundUser.setVerificationToken(null);
+		foundVerificationToken.setDeleted(true);
 		saveOrUpdateUser(foundUser);
-		verificationTokenService.deleteVerificationToken(token);
 	}
 
 	@Override
@@ -207,13 +216,18 @@ public class UserServiceImp implements UserService {
 		if (foundUser.getVerified())
 			throw new VerifiedUserException(foundUser.getEmail());
 
-		resendVerificationToken(foundUser);
+		if (foundUser.getVerificationToken() == null)
+			throw new VerificationTokenNotFoundException("NOT FOUND");
+		foundUser.getVerificationToken().forEach(token -> {
+			if (token.getDeleted() == false) {
+				token.setDeleted(true);
+			}
+		});
+		VerificationToken recreatedToken = new VerificationToken(foundUser);
+		foundUser.getVerificationToken().add(recreatedToken);
+		mailer.sendVerificationEmailMessage(foundUser, recreatedToken, "Resend Verify Token");
+		foundUser = saveOrUpdateUser(foundUser);
 		return foundUser;
-	}
-
-	private void resendVerificationToken(AppUser user) throws VerificationTokenNotFoundException {
-		VerificationToken updatedVerificationToken = verificationTokenService.updateToken(user);
-		mailer.sendVerificationEmailMessage(updatedVerificationToken.getUser(), "Resend Verify Token");
 	}
 
 	@Override
@@ -239,5 +253,5 @@ public class UserServiceImp implements UserService {
 	public String getCurrrentUsernameByAuth() {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
-	
+
 }
