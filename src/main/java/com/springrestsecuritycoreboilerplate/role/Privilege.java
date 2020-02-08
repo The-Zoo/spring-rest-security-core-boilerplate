@@ -17,10 +17,11 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springrestsecuritycoreboilerplate.common.BaseEntity;
 
 @Entity
 @Table(name = "PRIVILEGE")
-public class Privilege implements Serializable {
+public class Privilege extends BaseEntity implements Serializable {
 
 	@Id
 	@GeneratedValue(generator = "hibernate-uuid")

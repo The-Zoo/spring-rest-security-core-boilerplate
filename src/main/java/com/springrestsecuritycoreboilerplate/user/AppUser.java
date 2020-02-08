@@ -18,12 +18,13 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
+import com.springrestsecuritycoreboilerplate.common.BaseEntity;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.role.Role;
 
 @Entity
 @Table(name = "APP_USER")
-public class AppUser implements Serializable {
+public class AppUser extends BaseEntity implements Serializable {
 
 	@Id
 	@GeneratedValue(generator = "hibernate-uuid")
