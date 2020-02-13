@@ -95,15 +95,15 @@ public class UserServiceImp implements UserService {
 
 	}
 
-	@Override
-	public AppUser addUser(AppUser appUser) throws UsernameFoundException, RoleNotFoundException, EmptyValueException {
-		checkAppUserObject(appUser);
-		Role foundRole = roleService.findRoleByName(appUser.getRole().getName());
-		appUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
-		appUser.setRole(foundRole);
-		appUser.setCanBeModified(true);
-		return saveOrUpdateUser(appUser);
-	}
+//	@Override
+//	public AppUser addUser(AppUser appUser) throws UsernameFoundException, RoleNotFoundException, EmptyValueException {
+//		checkAppUserObject(appUser);
+//		Role foundRole = roleService.findRoleByName(appUser.getRole().getName());
+//		appUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
+//		appUser.setRole(foundRole);
+//		appUser.setCanBeModified(true);
+//		return saveOrUpdateUser(appUser);
+//	}
 
 	@Override
 	public void deleteUser(String id) throws AccountNotFoundException, AccountNotModifiedException {
@@ -115,31 +115,31 @@ public class UserServiceImp implements UserService {
 
 	}
 
-	@Override
-	public AppUser updateUser(String id, AppUser appUser) throws EmptyValueException, UsernameFoundException,
-			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException {
-		checkAppUserObject(appUser);
-		AppUser foundUser = getAppUserById(id);
-		Role foundRole = roleService.findRoleByName(appUser.getRole().getName());
-		if (foundUser.getCanBeModified() == false) {
-			throw new AccountNotModifiedException("This account cannot be modified");
-		}
-		foundUser.setRole(foundRole);
-		foundUser.setUsername(appUser.getUsername());
-		foundUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
-		return saveOrUpdateUser(foundUser);
+//	@Override
+//	public AppUser updateUser(String id, AppUser appUser) throws EmptyValueException, UsernameFoundException,
+//			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException {
+//		checkAppUserObject(appUser);
+//		AppUser foundUser = getAppUserById(id);
+//		Role foundRole = roleService.findRoleByName(appUser.getRole().getName());
+//		if (foundUser.getCanBeModified() == false) {
+//			throw new AccountNotModifiedException("This account cannot be modified");
+//		}
+//		foundUser.setRole(foundRole);
+//		foundUser.setUsername(appUser.getUsername());
+//		foundUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
+//		return saveOrUpdateUser(foundUser);
+//
+//	}
 
-	}
-
-	private void checkAppUserObject(AppUser appUser) throws EmptyValueException, UsernameFoundException {
-		if (!isEmpty(appUser.getUsername()) || !isEmpty(appUser.getPassword())
-				|| !isEmpty(appUser.getRole().getName())) {
-			throw new EmptyValueException("There is no value to evaluate!");
-		}
-		if (doesUsernameExist(appUser.getUsername())) {
-			throw new UsernameFoundException(appUser.getUsername());
-		}
-	}
+//	private void checkAppUserObject(AppUser appUser) throws EmptyValueException, UsernameFoundException {
+//		if (!isEmpty(appUser.getUsername()) || !isEmpty(appUser.getPassword())
+//				|| !isEmpty(appUser.getRole().getName())) {
+//			throw new EmptyValueException("There is no value to evaluate!");
+//		}
+//		if (doesUsernameExist(appUser.getUsername())) {
+//			throw new UsernameFoundException(appUser.getUsername());
+//		}
+//	}
 
 	private boolean isEmpty(String value) {
 		return (value != "" && value != null);
@@ -175,7 +175,7 @@ public class UserServiceImp implements UserService {
 		AppUser appUser = new AppUser();
 		appUser.setUsername(userRegisterRequestDTO.getUsername());
 		appUser.setEmail(userRegisterRequestDTO.getEmail());
-		appUser.setRole(roleRepository.findByName("ROLE_USER"));
+		appUser.getRoles().add(roleRepository.findByName("ROLE_USER"));
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
 		VerificationToken recreatedVerificationToken = new VerificationToken(appUser);
 		appUser.getVerificationToken().add(recreatedVerificationToken);

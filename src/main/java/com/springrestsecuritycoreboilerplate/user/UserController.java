@@ -71,22 +71,22 @@ public class UserController {
 
 	}
 
-	@RequestMapping(value = "/api/user", method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('PRIVILEGE_EDIT_USER')")
-	public ResponseEntity<Object> addUser(@RequestBody AppUser appUser) {
-		try {
-			return new ResponseEntity<>(userService.addUser(appUser), HttpStatus.OK);
-		} catch (UsernameFoundException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-		} catch (RoleNotFoundException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-		} catch (EmptyValueException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-		} catch (Exception e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-		}
-
-	}
+//	@RequestMapping(value = "/api/user", method = RequestMethod.POST)
+//	@PreAuthorize("hasAuthority('PRIVILEGE_EDIT_USER')")
+//	public ResponseEntity<Object> addUser(@RequestBody AppUser appUser) {
+//		try {
+//			return new ResponseEntity<>(userService.addUser(appUser), HttpStatus.OK);
+//		} catch (UsernameFoundException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+//		} catch (RoleNotFoundException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+//		} catch (EmptyValueException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+//		} catch (Exception e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+//		}
+//
+//	}
 
 	@RequestMapping(value = "/api/user/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('PRIVILEGE_EDIT_USER')")
@@ -101,23 +101,23 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping(value = "/api/user/{id}", method = RequestMethod.PUT)
-	@PreAuthorize("hasAuthority('PRIVILEGE_EDIT_USER')")
-	public ResponseEntity<Object> updateUserById(@PathVariable("id") String id, @RequestBody AppUser appUser) {
-		try {
-			return new ResponseEntity<>(userService.updateUser(id, appUser), HttpStatus.OK);
-		} catch (EmptyValueException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-		} catch (UsernameFoundException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-		} catch (AccountNotModifiedException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-		} catch (AccountNotFoundException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-		} catch (RoleNotFoundException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-		}
-	}
+//	@RequestMapping(value = "/api/user/{id}", method = RequestMethod.PUT)
+//	@PreAuthorize("hasAuthority('PRIVILEGE_EDIT_USER')")
+//	public ResponseEntity<Object> updateUserById(@PathVariable("id") String id, @RequestBody AppUser appUser) {
+//		try {
+//			return new ResponseEntity<>(userService.updateUser(id, appUser), HttpStatus.OK);
+//		} catch (EmptyValueException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+//		} catch (UsernameFoundException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+//		} catch (AccountNotModifiedException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+//		} catch (AccountNotFoundException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+//		} catch (RoleNotFoundException e) {
+//			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+//		}
+//	}
 
 	@RequestMapping(value = "/api/verify-user/{token}", method = RequestMethod.GET)
 	public ResponseEntity<Object> verifyUser(@PathVariable("token") String token) {
