@@ -10,6 +10,9 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -41,19 +44,20 @@ public class AppUser extends BaseEntity implements Serializable {
 	@NotNull
 	private Boolean verified = false;
 
-	@ManyToOne
-	private Role role;
+	@ManyToMany(fetch = FetchType.EAGER)
+//	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "appuser_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+	private Set<Role> roles = new HashSet<Role>();
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
 	@Where(clause = "deleted=false")
 	private Set<VerificationToken> verificationToken = new HashSet<VerificationToken>();
 
-	public Role getRole() {
-		return role;
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 
 	public Set<VerificationToken> getVerificationToken() {

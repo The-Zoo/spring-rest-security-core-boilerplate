@@ -27,7 +27,7 @@ public interface UserService {
 
 	Iterable<AppUser> allPulses();
 
-	AppUser addUser(AppUser appUser) throws UsernameFoundException, RoleNotFoundException, EmptyValueException;
+//	AppUser addUser(AppUser appUser) throws UsernameFoundException, RoleNotFoundException, EmptyValueException;
 
 	Optional<AppUser> findAppUserById(String id);
 
@@ -35,8 +35,8 @@ public interface UserService {
 
 	void deleteUser(String id) throws AccountNotFoundException, AccountNotModifiedException;
 
-	AppUser updateUser(String id, AppUser appUser) throws EmptyValueException, UsernameFoundException,
-			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException;
+//	AppUser updateUser(String id, AppUser appUser) throws EmptyValueException, UsernameFoundException,
+//			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException;
 
 	AppUser getCurrrentUserByAuth();
 

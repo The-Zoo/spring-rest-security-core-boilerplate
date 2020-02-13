@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -61,7 +62,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
 		admin.setName("root");
 		admin.setUsername("root");
 		admin.setPassword(passwordEncoder.encode("root"));
-		admin.setRole(adminRole);
+		admin.setRoles(Set.of(adminRole));
 		admin.setCanBeModified(false);
 		admin.setEmail("root@root.com");
 		userRepository.save(admin);
@@ -71,7 +72,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
 		standartUser.setUsername("user");
 		standartUser.setPassword(passwordEncoder.encode("user"));
 		standartUser.setCanBeModified(true);
-		standartUser.setRole(userRole);
+		standartUser.setRoles(Set.of(userRole));
 		standartUser.setEmail("user@user.com");
 		userRepository.save(standartUser);
 

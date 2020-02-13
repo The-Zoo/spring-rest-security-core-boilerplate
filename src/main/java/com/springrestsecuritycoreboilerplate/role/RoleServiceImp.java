@@ -27,15 +27,18 @@ public class RoleServiceImp implements RoleService {
 	}
 
 	@Override
-	public final Collection<? extends GrantedAuthority> getAuthorities(final Role role) {
-		return getGrantedAuthorities(getPrivileges(role));
+	public final Collection<? extends GrantedAuthority> getAuthorities(final Collection<Role> roles) {
+		return getGrantedAuthorities(getPrivileges(roles));
 	}
-
+	//"Set" can be used for preventing duplicate roles/privileges in the future besides that already,
+	//During auth processing, Spring is preventing for duplicates with Collections.unmodifiableSet(sortAuthorities(authorities));
 	@Override
-	public final List<String> getPrivileges(final Role role) {
+	public final List<String> getPrivileges(final Collection<Role> roles) {
 		final List<String> privileges = new ArrayList<String>();
 		final List<Privilege> collection = new ArrayList<Privilege>();
-		collection.addAll(role.getPrivileges());
+		for (final Role role : roles) {
+			collection.addAll(role.getPrivileges());
+		}
 		for (final Privilege item : collection) {
 			privileges.add(item.getName());
 		}
