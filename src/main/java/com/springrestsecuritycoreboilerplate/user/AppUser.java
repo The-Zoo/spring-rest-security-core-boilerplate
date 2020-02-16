@@ -50,7 +50,7 @@ public class AppUser extends BaseEntity implements Serializable {
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
 	@Where(clause = "deleted=false")
-	private Set<VerificationToken> verificationToken = new HashSet<VerificationToken>();
+	private Set<VerificationToken> verificationTokens = new HashSet<VerificationToken>();
 
 	public Set<Role> getRoles() {
 		return roles;
@@ -60,12 +60,12 @@ public class AppUser extends BaseEntity implements Serializable {
 		this.roles = roles;
 	}
 
-	public Set<VerificationToken> getVerificationToken() {
-		return verificationToken;
+	public Set<VerificationToken> getVerificationTokens() {
+		return verificationTokens;
 	}
 
-	public void setVerificationToken(Set<VerificationToken> verificationToken) {
-		this.verificationToken = verificationToken;
+	public void setVerificationTokens(Set<VerificationToken> verificationToken) {
+		this.verificationTokens = verificationToken;
 	}
 
 	public String getId() {

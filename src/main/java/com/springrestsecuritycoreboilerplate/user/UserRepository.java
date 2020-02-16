@@ -10,6 +10,6 @@ public interface UserRepository extends CrudRepository<AppUser, String> {
 
 	AppUser findByUsername(String username);
 
-	AppUser findByVerificationToken_token(String token);
+	AppUser findByVerificationTokens_token(String token);
 
 }

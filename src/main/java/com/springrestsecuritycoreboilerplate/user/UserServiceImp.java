@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.springrestsecuritycoreboilerplate.common.UserRoleConstants;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
@@ -175,12 +176,12 @@ public class UserServiceImp implements UserService {
 		AppUser appUser = new AppUser();
 		appUser.setUsername(userRegisterRequestDTO.getUsername());
 		appUser.setEmail(userRegisterRequestDTO.getEmail());
-		appUser.getRoles().add(roleRepository.findByName("ROLE_USER"));
+		appUser.getRoles().add(roleRepository.findByName(UserRoleConstants.ROLE_USER));
 		appUser.setPassword(bCryptPasswordEncoder.encode(userRegisterRequestDTO.getPassword()));
-		VerificationToken recreatedVerificationToken = new VerificationToken(appUser);
-		appUser.getVerificationToken().add(recreatedVerificationToken);
+		VerificationToken createdVerificationToken = new VerificationToken(appUser);
+		appUser.getVerificationTokens().add(createdVerificationToken);
 		appUser = saveOrUpdateUser(appUser);
-		mailer.sendVerificationEmailMessage(appUser, recreatedVerificationToken, "Registration Confirmation");
+		mailer.sendVerificationEmailMessage(appUser, createdVerificationToken, "Registration Confirmation");
 		return appUser;
 	}
 
@@ -216,15 +217,15 @@ public class UserServiceImp implements UserService {
 		if (foundUser.getVerified())
 			throw new VerifiedUserException(foundUser.getEmail());
 
-		if (foundUser.getVerificationToken() == null)
+		if (foundUser.getVerificationTokens() == null)
 			throw new VerificationTokenNotFoundException("NOT FOUND");
-		foundUser.getVerificationToken().forEach(token -> {
+		foundUser.getVerificationTokens().forEach(token -> {
 			if (token.getDeleted() == false) {
 				token.setDeleted(true);
 			}
 		});
 		VerificationToken recreatedToken = new VerificationToken(foundUser);
-		foundUser.getVerificationToken().add(recreatedToken);
+		foundUser.getVerificationTokens().add(recreatedToken);
 		mailer.sendVerificationEmailMessage(foundUser, recreatedToken, "Resend Verify Token");
 		foundUser = saveOrUpdateUser(foundUser);
 		return foundUser;

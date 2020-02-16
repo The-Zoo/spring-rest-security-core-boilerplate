@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.springrestsecuritycoreboilerplate.common.UserRoleConstants;
 import com.springrestsecuritycoreboilerplate.role.Privilege;
 import com.springrestsecuritycoreboilerplate.role.PrivilegeRepository;
 import com.springrestsecuritycoreboilerplate.role.Role;
@@ -52,11 +53,11 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
 		List<Privilege> adminPrivileges = Arrays.asList(p1, p2, p3, p4);
 		List<Privilege> userPrivileges = Arrays.asList(p2, p4);
 
-		createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
-		createRoleIfNotFound("ROLE_USER", userPrivileges);
+		createRoleIfNotFound(UserRoleConstants.ROLE_ADMIN, adminPrivileges);
+		createRoleIfNotFound(UserRoleConstants.ROLE_USER, userPrivileges);
 
-		Role adminRole = roleRepository.findByName("ROLE_ADMIN");
-		Role userRole = roleRepository.findByName("ROLE_USER");
+		Role adminRole = roleRepository.findByName(UserRoleConstants.ROLE_ADMIN);
+		Role userRole = roleRepository.findByName(UserRoleConstants.ROLE_USER);
 
 		AppUser admin = new AppUser();
 		admin.setName("root");
