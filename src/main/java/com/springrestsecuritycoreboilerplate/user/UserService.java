@@ -14,6 +14,7 @@ import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFound
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
+import com.springrestsecuritycoreboilerplate.request.ResetPasswordTokenRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 
 public interface UserService {
@@ -48,4 +49,6 @@ public interface UserService {
 	AppUser findUserByEmail(String email);
 	
 	AppUser changeUserPassword(PasswordChangeRequestDTO passwordChangeRequestDTO) throws ValueComprasionException, AccountNotFoundException;
+	
+	void sendResetPasswordToken(ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO) throws AccountNotFoundException;
 }

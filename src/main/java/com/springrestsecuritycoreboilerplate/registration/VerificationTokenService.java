@@ -1,7 +1,4 @@
-package com.springrestsecuritycoreboilerplate.registration;
-
-import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
-import com.springrestsecuritycoreboilerplate.user.AppUser;
+ 	package com.springrestsecuritycoreboilerplate.registration;
 
 public interface VerificationTokenService {
 

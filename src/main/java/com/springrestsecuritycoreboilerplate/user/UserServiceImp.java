@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +33,7 @@ import com.springrestsecuritycoreboilerplate.registration.VerificationTokenRepos
 import com.springrestsecuritycoreboilerplate.registration.VerificationTokenService;
 import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
+import com.springrestsecuritycoreboilerplate.request.ResetPasswordTokenRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.role.Role;
 import com.springrestsecuritycoreboilerplate.role.RoleRepository;
@@ -252,6 +254,20 @@ public class UserServiceImp implements UserService {
 
 	public String getCurrrentUsernameByAuth() {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
+	}
+
+	@Override
+	public void sendResetPasswordToken(ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO) throws AccountNotFoundException {
+		AppUser foundUser = null;
+		if (GenericValidator.isEmail(resetPasswordTokenRequestDTO.getUsernameOrEmail())) {
+			foundUser = findUserByEmail(resetPasswordTokenRequestDTO.getUsernameOrEmail());
+		} else {
+			foundUser = findByUsername(resetPasswordTokenRequestDTO.getUsernameOrEmail());
+		}
+		if (foundUser == null) {
+			throw new AccountNotFoundException("Account is not found");
+		}
+		
 	}
 
 }
