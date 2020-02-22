@@ -22,6 +22,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 import com.springrestsecuritycoreboilerplate.common.BaseEntity;
+import com.springrestsecuritycoreboilerplate.password.ResetPasswordToken;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.role.Role;
 
@@ -51,6 +52,18 @@ public class AppUser extends BaseEntity implements Serializable {
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
 	@Where(clause = "deleted=false")
 	private Set<VerificationToken> verificationTokens = new HashSet<VerificationToken>();
+
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+	@Where(clause = "deleted=false")
+	private Set<ResetPasswordToken> resetPasswordTokens = new HashSet<ResetPasswordToken>();
+
+	public Set<ResetPasswordToken> getResetPasswordTokens() {
+		return resetPasswordTokens;
+	}
+
+	public void setResetPasswordTokens(Set<ResetPasswordToken> resetPasswordTokens) {
+		this.resetPasswordTokens = resetPasswordTokens;
+	}
 
 	public Set<Role> getRoles() {
 		return roles;

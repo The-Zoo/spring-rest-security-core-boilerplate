@@ -9,6 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import com.springrestsecuritycoreboilerplate.password.ResetPasswordToken;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.registration.VerificationTokenRepository;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
@@ -32,6 +33,18 @@ public class Mailer implements Serializable {
 		email.setTo(recipientAddress);
 		email.setSubject(subject);
 		email.setText("Token is " + verificationToken.getToken());
+		email.setFrom(env.getProperty("support.email"));
+		mailSender.send(email);
+	}
+	
+	public void sendResetPasswordEmailMessage(final AppUser user, final ResetPasswordToken resetPasswordToken,
+			final String mailSubject) {
+		final String recipientAddress = user.getEmail();
+		final String subject = mailSubject;
+		final SimpleMailMessage email = new SimpleMailMessage();
+		email.setTo(recipientAddress);
+		email.setSubject(subject);
+		email.setText("Token is " + resetPasswordToken.getToken());
 		email.setFrom(env.getProperty("support.email"));
 		mailSender.send(email);
 	}

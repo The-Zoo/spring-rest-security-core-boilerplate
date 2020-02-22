@@ -6,6 +6,7 @@ import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedExcepti
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
+import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -14,6 +15,8 @@ import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFound
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
+import com.springrestsecuritycoreboilerplate.request.ResetPasswordRequestDTO;
+import com.springrestsecuritycoreboilerplate.request.ResetPasswordTokenRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 
 public interface UserService {
@@ -40,12 +43,20 @@ public interface UserService {
 
 	AppUser getCurrrentUserByAuth();
 
-	void verifyUser(String token) throws VerificationTokenNotFoundException,AccountNotFoundException, ExpiredTokenException, VerifiedUserException;
+	void verifyUser(String token) throws VerificationTokenNotFoundException, AccountNotFoundException,
+			ExpiredTokenException, VerifiedUserException;
 
 	AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO)
 			throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException;
 
 	AppUser findUserByEmail(String email);
-	
-	AppUser changeUserPassword(PasswordChangeRequestDTO passwordChangeRequestDTO) throws ValueComprasionException, AccountNotFoundException;
+
+	AppUser changeUserPassword(PasswordChangeRequestDTO passwordChangeRequestDTO)
+			throws ValueComprasionException, AccountNotFoundException;
+
+	void sendResetPasswordToken(ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO)
+			throws AccountNotFoundException;
+
+	AppUser resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
+			throws ValueComprasionException, InvalidTokenException, ExpiredTokenException;
 }
