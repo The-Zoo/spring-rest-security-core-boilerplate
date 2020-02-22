@@ -6,12 +6,12 @@ import javax.validation.constraints.NotBlank;
 public class UserRegisterRequestDTO {
 
 	@NotBlank
-	String username;
+	private String username;
 	@NotBlank
-	String password;
+	private String password;
 	@Email
 	@NotBlank
-	String email;
+	private String email;
 
 	public String getUsername() {
 		return username;

@@ -6,9 +6,9 @@ public class ResetPasswordRequestDTO {
 	@NotBlank
 	private String token;
 	@NotBlank
-	String newPassword1;
+	private String newPassword1;
 	@NotBlank
-	String newPassword2;
+	private String newPassword2;
 
 	public String getToken() {
 		return token;
