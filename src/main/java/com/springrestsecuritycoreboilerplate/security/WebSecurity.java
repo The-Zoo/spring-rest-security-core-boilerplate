@@ -49,7 +49,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable().authorizeRequests()
-				.antMatchers("/login")
+				.antMatchers(
+						"/login",
+						"/api/register",
+						"/api/verify-user/*",
+						"/api/resend-token",
+						"/api/recovery-password",
+						"/api/reset-password"
+						)
 				.permitAll()
 				.anyRequest().authenticated()
 				.and()

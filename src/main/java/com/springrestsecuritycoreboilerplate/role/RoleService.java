@@ -9,9 +9,9 @@ import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 
 public interface RoleService {
 
-	Collection<? extends GrantedAuthority> getAuthorities(final Role role);
+	Collection<? extends GrantedAuthority> getAuthorities(final Collection<Role> roles);
 
-	List<String> getPrivileges(final Role role);
+	List<String> getPrivileges(Collection<Role> roles);
 
 	List<GrantedAuthority> getGrantedAuthorities(final List<String> privileges);
 

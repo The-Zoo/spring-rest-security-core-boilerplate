@@ -1,19 +1,34 @@
 package com.springrestsecuritycoreboilerplate.user;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
+
+import com.springrestsecuritycoreboilerplate.common.BaseEntity;
+import com.springrestsecuritycoreboilerplate.password.ResetPasswordToken;
+import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.role.Role;
 
 @Entity
 @Table(name = "APP_USER")
-public class AppUser implements Serializable {
+public class AppUser extends BaseEntity implements Serializable {
 
 	@Id
 	@GeneratedValue(generator = "hibernate-uuid")
@@ -25,16 +40,45 @@ public class AppUser implements Serializable {
 	@NotNull
 	private String password;
 	private Boolean canBeModified;
+	@NotNull
+	private String email;
+	@NotNull
+	private Boolean verified = false;
 
-	@ManyToOne
-	private Role role;
+	@ManyToMany(fetch = FetchType.EAGER)
+//	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "appuser_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+	private Set<Role> roles = new HashSet<Role>();
 
-	public Role getRole() {
-		return role;
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+	@Where(clause = "deleted=false")
+	private Set<VerificationToken> verificationTokens = new HashSet<VerificationToken>();
+
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+	@Where(clause = "deleted=false")
+	private Set<ResetPasswordToken> resetPasswordTokens = new HashSet<ResetPasswordToken>();
+
+	public Set<ResetPasswordToken> getResetPasswordTokens() {
+		return resetPasswordTokens;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
+	public void setResetPasswordTokens(Set<ResetPasswordToken> resetPasswordTokens) {
+		this.resetPasswordTokens = resetPasswordTokens;
+	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
+	public Set<VerificationToken> getVerificationTokens() {
+		return verificationTokens;
+	}
+
+	public void setVerificationTokens(Set<VerificationToken> verificationToken) {
+		this.verificationTokens = verificationToken;
 	}
 
 	public String getId() {
@@ -77,12 +121,20 @@ public class AppUser implements Serializable {
 		this.canBeModified = canBeDeleted;
 	}
 
-//	public String getEmail() {
-//		return email;
-//	}
-//
-//	public void setEmail(String email) {
-//		this.email = email;
-//	}
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
+	}
 
 }
