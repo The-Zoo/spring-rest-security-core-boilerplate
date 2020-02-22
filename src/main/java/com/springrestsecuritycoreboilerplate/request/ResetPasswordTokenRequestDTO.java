@@ -1,9 +1,7 @@
 package com.springrestsecuritycoreboilerplate.request;
 
-import javax.validation.constraints.Email;
-
 public class ResetPasswordTokenRequestDTO {
-	String usernameOrEmail;
+	private String usernameOrEmail;
 
 	public String getUsernameOrEmail() {
 		return usernameOrEmail;

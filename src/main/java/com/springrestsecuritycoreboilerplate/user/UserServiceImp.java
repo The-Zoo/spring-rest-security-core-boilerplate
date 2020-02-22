@@ -21,6 +21,7 @@ import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedExcepti
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
+import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -28,11 +29,15 @@ import com.springrestsecuritycoreboilerplate.exception.ValueComprasionException;
 import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.mail.Mailer;
+import com.springrestsecuritycoreboilerplate.password.ResetPasswordToken;
+import com.springrestsecuritycoreboilerplate.password.ResetPasswordTokenRepository;
+import com.springrestsecuritycoreboilerplate.password.ResetPasswordTokenService;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 import com.springrestsecuritycoreboilerplate.registration.VerificationTokenRepository;
 import com.springrestsecuritycoreboilerplate.registration.VerificationTokenService;
 import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
+import com.springrestsecuritycoreboilerplate.request.ResetPasswordRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResetPasswordTokenRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.role.Role;
@@ -46,6 +51,12 @@ public class UserServiceImp implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	ResetPasswordTokenRepository resetPasswordTokenRepository;
+
+	@Autowired
+	ResetPasswordTokenService resetPasswordTokenService;
 
 	@Autowired
 	RoleService roleService;
@@ -220,6 +231,7 @@ public class UserServiceImp implements UserService {
 
 		if (foundUser.getVerificationToken() == null)
 			throw new VerificationTokenNotFoundException("NOT FOUND");
+
 		foundUser.getVerificationToken().forEach(token -> {
 			if (token.getDeleted() == false) {
 				token.setDeleted(true);
@@ -257,7 +269,8 @@ public class UserServiceImp implements UserService {
 	}
 
 	@Override
-	public void sendResetPasswordToken(ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO) throws AccountNotFoundException {
+	public void sendResetPasswordToken(ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO)
+			throws AccountNotFoundException {
 		AppUser foundUser = null;
 		if (GenericValidator.isEmail(resetPasswordTokenRequestDTO.getUsernameOrEmail())) {
 			foundUser = findUserByEmail(resetPasswordTokenRequestDTO.getUsernameOrEmail());
@@ -267,7 +280,36 @@ public class UserServiceImp implements UserService {
 		if (foundUser == null) {
 			throw new AccountNotFoundException("Account is not found");
 		}
-		
+		foundUser.getResetPasswordTokens().forEach(token -> {
+			if (token.getDeleted() == false) {
+				token.setDeleted(true);
+			}
+		});
+		ResetPasswordToken createdResetPasswordToken = new ResetPasswordToken(foundUser);
+		foundUser.getResetPasswordTokens().add(createdResetPasswordToken);
+		foundUser = saveOrUpdateUser(foundUser);
+		mailer.sendResetPasswordEmailMessage(foundUser, createdResetPasswordToken, "Reset Password Request");
 	}
 
-}
+	@Override
+	public AppUser resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
+			throws ValueComprasionException, InvalidTokenException, ExpiredTokenException {
+		if (!resetPasswordRequestDTO.getNewPassword1().equals(resetPasswordRequestDTO.getNewPassword2())) {
+			throw new ValueComprasionException("Passwords are not equal");
+		}
+		ResetPasswordToken foundResetPasswordToken = resetPasswordTokenRepository
+				.findByTokenAndDeleted(resetPasswordRequestDTO.getToken(), false);
+		if (foundResetPasswordToken == null) {
+			throw new InvalidTokenException("Invalid reset password token.");
+		}
+		if ((foundResetPasswordToken.getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
+			throw new ExpiredTokenException(foundResetPasswordToken.getExpiryDate());
+		}
+		AppUser foundUser = foundResetPasswordToken.getUser();
+		foundUser.setPassword(bCryptPasswordEncoder.encode(resetPasswordRequestDTO.getNewPassword1()));
+		foundResetPasswordToken.setDeleted(true);
+		foundUser = saveOrUpdateUser(foundUser);
+		return foundUser;
+	}
+
+};

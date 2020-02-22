@@ -1,7 +1,10 @@
 package com.springrestsecuritycoreboilerplate.password;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,7 +19,10 @@ import com.springrestsecuritycoreboilerplate.common.BaseEntity;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
 
 @Entity
-public class ResetPasswordToken extends BaseEntity implements Serializable{
+public class ResetPasswordToken extends BaseEntity implements Serializable {
+
+	private static final int EXPIRATION = 60 * 24;
+
 	@Id
 	@GeneratedValue(generator = "hibernate-uuid")
 	@GenericGenerator(name = "hibernate-uuid", strategy = "uuid2")
@@ -28,6 +34,17 @@ public class ResetPasswordToken extends BaseEntity implements Serializable{
 	private AppUser user;
 
 	private Date expiryDate;
+
+	public ResetPasswordToken() {
+		super();
+	}
+
+	public ResetPasswordToken(AppUser user) {
+		super();
+		this.token = UUID.randomUUID().toString();
+		this.expiryDate = calculateExpiryDate(EXPIRATION);
+		this.user = user;
+	}
 
 	public String getId() {
 		return id;
@@ -60,5 +77,12 @@ public class ResetPasswordToken extends BaseEntity implements Serializable{
 	public void setExpiryDate(Date expiryDate) {
 		this.expiryDate = expiryDate;
 	}
-	
+
+	private Date calculateExpiryDate(int expiryTimeInMinutes) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Timestamp(cal.getTime().getTime()));
+		cal.add(Calendar.MINUTE, expiryTimeInMinutes);
+		return new Date(cal.getTime().getTime());
+	}
+
 }

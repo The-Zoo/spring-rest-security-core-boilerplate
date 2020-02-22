@@ -17,6 +17,7 @@ import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedExcepti
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
+import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -25,6 +26,8 @@ import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFound
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.request.PasswordChangeRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
+import com.springrestsecuritycoreboilerplate.request.ResetPasswordRequestDTO;
+import com.springrestsecuritycoreboilerplate.request.ResetPasswordTokenRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
 import com.springrestsecuritycoreboilerplate.response.ResponseObject;
 
@@ -145,6 +148,32 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
 		} catch (AccountNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+
+	}
+
+	@RequestMapping(value = "/api/recovery-password", method = RequestMethod.POST)
+	public ResponseEntity<Object> recoveryPassword(
+			@Valid @RequestBody ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO) {
+		try {
+			userService.sendResetPasswordToken(resetPasswordTokenRequestDTO);
+			return new ResponseEntity<>("User password recovery mail has been sent.", HttpStatus.ACCEPTED);
+		} catch (AccountNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
+
+	}
+
+	@RequestMapping(value = "/api/reset-password", method = RequestMethod.POST)
+	public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO) {
+		try {
+			return new ResponseEntity<>(userService.resetPassword(resetPasswordRequestDTO), HttpStatus.ACCEPTED);
+		} catch (ValueComprasionException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+		} catch (InvalidTokenException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (ExpiredTokenException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
 		}
 
 	}
