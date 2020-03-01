@@ -27,26 +27,27 @@ public class Mailer implements Serializable {
 
 	public void sendVerificationEmailMessage(final AppUser user, final VerificationToken verificationToken,
 			final String mailSubject) {
-		final String recipientAddress = user.getEmail();
-		final String subject = mailSubject;
-		final SimpleMailMessage email = new SimpleMailMessage();
-		email.setTo(recipientAddress);
-		email.setSubject(subject);
-		email.setText("Token is " + verificationToken.getToken());
-		email.setFrom(env.getProperty("support.email"));
+		final String textMessage = "Verification Token is: " + verificationToken.getToken();
+		final SimpleMailMessage email = prepareMail(user, textMessage, mailSubject);
 		mailSender.send(email);
 	}
-	
+
 	public void sendResetPasswordEmailMessage(final AppUser user, final ResetPasswordToken resetPasswordToken,
 			final String mailSubject) {
+		final String textMessage = "Reset Password Token is: " + resetPasswordToken.getToken();
+		final SimpleMailMessage email = prepareMail(user, textMessage, mailSubject);
+		mailSender.send(email);
+	}
+
+	public SimpleMailMessage prepareMail(final AppUser user, final String textMessage, final String mailSubject) {
 		final String recipientAddress = user.getEmail();
 		final String subject = mailSubject;
 		final SimpleMailMessage email = new SimpleMailMessage();
 		email.setTo(recipientAddress);
 		email.setSubject(subject);
-		email.setText("Token is " + resetPasswordToken.getToken());
+		email.setText(textMessage);
 		email.setFrom(env.getProperty("support.email"));
-		mailSender.send(email);
+		return email;
 	}
 
 }
