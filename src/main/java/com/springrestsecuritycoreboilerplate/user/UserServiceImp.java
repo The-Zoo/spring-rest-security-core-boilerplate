@@ -80,27 +80,24 @@ public class UserServiceImp implements UserService {
 	}
 
 	@Override
-	public Optional<AppUser> findAppUserById(String id) {
-		return userRepository.findById(id);
+	public AppUser findAppUserById(String id) throws AccountNotFoundException {
+		AppUser foundUser = userRepository.findById(id)
+				.orElseThrow(() -> new AccountNotFoundException("User is not found by this id: " + id));
+		return foundUser;
 	}
 
 	@Override
-	public AppUser getAppUserById(String id) throws AccountNotFoundException {
-		Optional<AppUser> foundUser = findAppUserById(id);
-		if (foundUser.isPresent() == false) {
-			throw new AccountNotFoundException("User is not found by id.");
-		}
-		return foundUser.get();
+	public AppUser findAppUserByUsername(String username) throws AccountNotFoundException {
+		AppUser foundUser = userRepository.findByUsername(username).orElseThrow(
+				() -> new AccountNotFoundException("Account is not found with this username: " + username));
+		return foundUser;
 	}
 
 	@Override
-	public AppUser findByUsername(String username) {
-		return userRepository.findByUsername(username);
-	}
-
-	@Override
-	public AppUser findUserByEmail(String email) {
-		return userRepository.findByEmail(email);
+	public AppUser findAppUserByEmail(String email) throws AccountNotFoundException {
+		AppUser foundUser = userRepository.findByEmail(email)
+				.orElseThrow(() -> new AccountNotFoundException("Account is not found with this email: " + email));
+		return foundUser;
 	}
 
 	@Override
@@ -121,7 +118,7 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public void deleteUser(String id) throws AccountNotFoundException, AccountNotModifiedException {
-		AppUser foundUser = getAppUserById(id);
+		AppUser foundUser = findAppUserById(id);
 		if (foundUser.getCanBeModified() == false) {
 			throw new AccountNotModifiedException("This account cannot be deleted");
 		}
@@ -160,19 +157,17 @@ public class UserServiceImp implements UserService {
 	}
 
 	private boolean doesUsernameExist(String username) {
-		AppUser foundUser = userRepository.findByUsername(username);
-		return foundUser != null;
+		return userRepository.existsByUsername(username);
 	}
 
 	private boolean doesEmailExist(String email) {
-		AppUser foundUser = userRepository.findByEmail(email);
-		return foundUser != null;
+		return userRepository.existsByEmail(email);	
 	}
 
-	public AppUser getCurrrentUserByAuth() {
+	public AppUser getCurrrentUserByAuth() throws AccountNotFoundException {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
-		AppUser currentUser = findByUsername(currentPrincipalName);
+		AppUser currentUser = findAppUserByUsername(currentPrincipalName);
 		return currentUser;
 	}
 
@@ -201,10 +196,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public void verifyUser(String token) throws VerificationTokenNotFoundException, AccountNotFoundException,
 			ExpiredTokenException, VerifiedUserException {
-		VerificationToken foundVerificationToken = verificationTokenRepository.findByTokenAndDeleted(token, false);
-		if (foundVerificationToken == null) {
-			throw new VerificationTokenNotFoundException("Verification token is not valid");
-		}
+		VerificationToken foundVerificationToken = verificationTokenService.findVerificationTokenByIdAndDeletedStatus(token, false);
 		if ((foundVerificationToken.getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
 			throw new ExpiredTokenException(foundVerificationToken.getExpiryDate());
 		}
@@ -223,10 +215,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO)
 			throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException {
-		AppUser foundUser = findUserByEmail(resendVerificationTokenDTO.getEmail());
-		if (foundUser == null)
-			throw new AccountNotFoundException(resendVerificationTokenDTO.getEmail());
-
+		AppUser foundUser = findAppUserByEmail(resendVerificationTokenDTO.getEmail());
 		if (foundUser.getVerified())
 			throw new VerifiedUserException(foundUser.getEmail());
 
@@ -251,10 +240,7 @@ public class UserServiceImp implements UserService {
 		if (!passwordChangeRequestDTO.getNewPassword1().equals(passwordChangeRequestDTO.getNewPassword2())) {
 			throw new ValueComprasionException("Passwords are not equal");
 		}
-		AppUser foundUser = getAppUserById(passwordChangeRequestDTO.getUserId());
-		if (foundUser == null) {
-			throw new AccountNotFoundException("Account is not found");
-		}
+		AppUser foundUser = findAppUserById(passwordChangeRequestDTO.getUserId());
 		if (!foundUser.getUsername().equals(getCurrrentUsernameByAuth())) {
 			throw new ValueComprasionException("Auth Failed!");
 		}
@@ -272,15 +258,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public void sendResetPasswordToken(ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO)
 			throws AccountNotFoundException {
-		AppUser foundUser = null;
-		if (GenericValidator.isEmail(resetPasswordTokenRequestDTO.getUsernameOrEmail())) {
-			foundUser = findUserByEmail(resetPasswordTokenRequestDTO.getUsernameOrEmail());
-		} else {
-			foundUser = findByUsername(resetPasswordTokenRequestDTO.getUsernameOrEmail());
-		}
-		if (foundUser == null) {
-			throw new AccountNotFoundException("Account is not found");
-		}
+		AppUser foundUser = findAppUserByEmailOrUsername(resetPasswordTokenRequestDTO.getUsernameOrEmail());
 		foundUser.getResetPasswordTokens().forEach(token -> {
 			if (token.getDeleted() == false) {
 				token.setDeleted(true);
@@ -291,6 +269,14 @@ public class UserServiceImp implements UserService {
 		foundUser = saveOrUpdateUser(foundUser);
 		mailer.sendResetPasswordEmailMessage(foundUser, createdResetPasswordToken, "Reset Password Request");
 	}
+	
+	private AppUser findAppUserByEmailOrUsername(String emailOrUsername) throws AccountNotFoundException {
+		if (GenericValidator.isEmail(emailOrUsername)) {
+			return findAppUserByEmail(emailOrUsername);
+		} else {
+			return findAppUserByUsername(emailOrUsername);
+		}
+	}
 
 	@Override
 	public AppUser resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
@@ -298,11 +284,8 @@ public class UserServiceImp implements UserService {
 		if (!resetPasswordRequestDTO.getNewPassword1().equals(resetPasswordRequestDTO.getNewPassword2())) {
 			throw new ValueComprasionException("Passwords are not equal");
 		}
-		ResetPasswordToken foundResetPasswordToken = resetPasswordTokenRepository
-				.findByTokenAndDeleted(resetPasswordRequestDTO.getToken(), false);
-		if (foundResetPasswordToken == null) {
-			throw new InvalidTokenException("Invalid reset password token.");
-		}
+		ResetPasswordToken foundResetPasswordToken = resetPasswordTokenService
+				.findVerificationTokenByIdAndDeletedStatus(resetPasswordRequestDTO.getToken(), false);
 		if ((foundResetPasswordToken.getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
 			throw new ExpiredTokenException(foundResetPasswordToken.getExpiryDate());
 		}
@@ -312,5 +295,4 @@ public class UserServiceImp implements UserService {
 		foundUser = saveOrUpdateUser(foundUser);
 		return foundUser;
 	}
-
-};
+}

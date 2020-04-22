@@ -1,6 +1,7 @@
 package com.springrestsecuritycoreboilerplate.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.response.LoginResponse;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
 import com.springrestsecuritycoreboilerplate.user.UserService;
@@ -86,7 +87,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private LoginResponse makeLoginResponse(User user) {
 		LoginResponse loginResponse = new LoginResponse();
 		AppUser appUser = new AppUser();
-		appUser = userService.findByUsername(user.getUsername());
+		try {
+			appUser = userService.findAppUserByUsername(user.getUsername());
+		} catch (AccountNotFoundException e) {
+			return loginResponse;
+		}
 		appUser.setPassword(null);
 		loginResponse.setUser(appUser);
 		return loginResponse;

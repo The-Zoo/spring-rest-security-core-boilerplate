@@ -26,22 +26,20 @@ public interface UserService {
 
 	AppUser saveOrUpdateUser(AppUser appUser);
 
-	AppUser findByUsername(String username);
+	AppUser findAppUserByUsername(String username) throws AccountNotFoundException;
 
 	Iterable<AppUser> allPulses();
 
 //	AppUser addUser(AppUser appUser) throws UsernameFoundException, RoleNotFoundException, EmptyValueException;
 
-	Optional<AppUser> findAppUserById(String id);
-
-	AppUser getAppUserById(String id) throws AccountNotFoundException;
+	AppUser findAppUserById(String id) throws AccountNotFoundException;
 
 	void deleteUser(String id) throws AccountNotFoundException, AccountNotModifiedException;
 
 //	AppUser updateUser(String id, AppUser appUser) throws EmptyValueException, UsernameFoundException,
 //			AccountNotModifiedException, AccountNotFoundException, RoleNotFoundException;
 
-	AppUser getCurrrentUserByAuth();
+	AppUser getCurrrentUserByAuth() throws AccountNotFoundException;
 
 	void verifyUser(String token) throws VerificationTokenNotFoundException, AccountNotFoundException,
 			ExpiredTokenException, VerifiedUserException;
@@ -49,7 +47,7 @@ public interface UserService {
 	AppUser resendVerificationToken(ResendVerificationTokenDTO resendVerificationTokenDTO)
 			throws AccountNotFoundException, VerifiedUserException, VerificationTokenNotFoundException;
 
-	AppUser findUserByEmail(String email);
+	AppUser findAppUserByEmail(String email) throws AccountNotFoundException;
 
 	AppUser changeUserPassword(PasswordChangeRequestDTO passwordChangeRequestDTO)
 			throws ValueComprasionException, AccountNotFoundException;

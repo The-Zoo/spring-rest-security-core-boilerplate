@@ -1,5 +1,7 @@
 package com.springrestsecuritycoreboilerplate.registration;
 
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.repository.CrudRepository;
@@ -9,5 +11,5 @@ public interface VerificationTokenRepository extends CrudRepository<Verification
 	@Transactional
 	Long removeByToken(String Token);
 
-	VerificationToken findByTokenAndDeleted(String Token, Boolean Deleted);
+	Optional<VerificationToken> findByTokenAndDeleted(String Token, Boolean Deleted);
 }
