@@ -26,4 +26,15 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 	public void deleteVerificationToken(String token) {
 		verificationTokenRepository.removeByToken(token);
 	}
+
+	@Override
+	public VerificationToken findVerificationTokenByIdAndDeletedStatus(String id, Boolean deleted)
+			throws VerificationTokenNotFoundException {
+		VerificationToken foundVerificationToken = verificationTokenRepository.findByTokenAndDeleted(id, false)
+				.orElseThrow(() -> new VerificationTokenNotFoundException("Verification token is not valid"));
+		return foundVerificationToken;
+	}
+	
+	
+	
 }
