@@ -46,7 +46,7 @@ public class LoginResponse {
 		return refreshToken;
 	}
 
-	public void setRefreshToken(String refreshToken) {
+	public void setRefreshToke(String refreshToken) {
 		this.refreshToken = refreshToken;
 	}
 }
