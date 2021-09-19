@@ -7,11 +7,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
+import com.springrestsecuritycoreboilerplate.response.RefreshTokenResponse;
+import com.springrestsecuritycoreboilerplate.security.JWTAuthenticationFilter;
+import com.springrestsecuritycoreboilerplate.util.SecurityUtil;
 import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -294,5 +303,14 @@ public class UserServiceImp implements UserService {
 		foundResetPasswordToken.setDeleted(true);
 		foundUser = saveOrUpdateUser(foundUser);
 		return foundUser;
+	}
+
+	@Override
+	public RefreshTokenResponse refreshUserToken() {
+		Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+		String authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+		String token = SecurityUtil.createToken(auth.getName(), authorities, false);
+		String refreshToken = SecurityUtil.createToken(auth.getName(), authorities, true);
+		return new RefreshTokenResponse(token, refreshToken);
 	}
 }

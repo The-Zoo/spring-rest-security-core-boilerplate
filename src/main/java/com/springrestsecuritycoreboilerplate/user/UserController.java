@@ -2,6 +2,7 @@ package com.springrestsecuritycoreboilerplate.user;
 
 import javax.validation.Valid;
 
+import com.springrestsecuritycoreboilerplate.response.RefreshTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -174,6 +175,16 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (ExpiredTokenException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+		}
+
+	}
+
+	@RequestMapping(value = "/api/refresh-token", method = RequestMethod.GET)
+	public ResponseEntity<Object> refreshUserToken() {
+		try {
+			return new ResponseEntity<>(userService.refreshUserToken(), HttpStatus.ACCEPTED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		}
 
 	}

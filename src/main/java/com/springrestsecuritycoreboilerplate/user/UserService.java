@@ -18,6 +18,7 @@ import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
 import com.springrestsecuritycoreboilerplate.request.ResetPasswordRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResetPasswordTokenRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
+import com.springrestsecuritycoreboilerplate.response.RefreshTokenResponse;
 
 public interface UserService {
 
@@ -57,4 +58,6 @@ public interface UserService {
 
 	AppUser resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
 			throws ValueComprasionException, InvalidTokenException, ExpiredTokenException;
+
+	RefreshTokenResponse refreshUserToken();
 }
