@@ -13,8 +13,10 @@ public class LoginResponse {
 	AppUser user;
 
 //	@JsonProperty("token")
-	@JsonIgnore
+//	@JsonIgnore
 	String token;
+
+	String refreshToken;
 
 	public AppUser getUser() {
 		return user;
@@ -40,4 +42,11 @@ public class LoginResponse {
 		this.statusCode = statusCode;
 	}
 
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToke(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 }
