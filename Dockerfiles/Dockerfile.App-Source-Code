@@ -1,0 +1,11 @@
+FROM maven:3.6.0-jdk-11-slim AS build
+WORKDIR /app
+COPY src src  
+COPY pom.xml .
+RUN mvn dependency:go-offline
+RUN mvn -f pom.xml -o clean package -DskipTests
+
+
+FROM openjdk:11-jre-slim
+COPY --from=build /app/target/spring-rest-security-core-boilerplate-0.0.1-SNAPSHOT.jar /app/spring-rest-security-core-boilerplate-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java","-jar","/app/spring-rest-security-core-boilerplate-0.0.1-SNAPSHOT.jar"]

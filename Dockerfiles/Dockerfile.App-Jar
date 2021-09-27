@@ -1,0 +1,4 @@
+FROM openjdk:11-jre-slim
+WORKDIR /app
+COPY target/spring-rest-security-core-boilerplate-0.0.1-SNAPSHOT.jar spring-rest-security-core-boilerplate-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java","-jar","/app/spring-rest-security-core-boilerplate-0.0.1-SNAPSHOT.jar"]
