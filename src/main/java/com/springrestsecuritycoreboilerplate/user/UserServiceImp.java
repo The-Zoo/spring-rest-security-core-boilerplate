@@ -32,6 +32,7 @@ import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
+import com.springrestsecuritycoreboilerplate.exception.PasswordValidationException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -39,6 +40,8 @@ import com.springrestsecuritycoreboilerplate.exception.ValueComprasionException;
 import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.mail.Mailer;
+import com.springrestsecuritycoreboilerplate.password.PasswordValidation;
+import com.springrestsecuritycoreboilerplate.password.PasswordValidationResult;
 import com.springrestsecuritycoreboilerplate.password.ResetPasswordToken;
 import com.springrestsecuritycoreboilerplate.password.ResetPasswordTokenRepository;
 import com.springrestsecuritycoreboilerplate.password.ResetPasswordTokenService;
@@ -82,6 +85,9 @@ public class UserServiceImp implements UserService {
 
 	@Autowired
 	private VerificationTokenService verificationTokenService;
+	
+	@Autowired
+	private PasswordValidation passwordValidation;
 
 	@Override
 	public AppUser saveOrUpdateUser(AppUser appUser) {
@@ -183,13 +189,14 @@ public class UserServiceImp implements UserService {
 	@Transactional
 	@Override
 	public AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO)
-			throws EmailExistsException, UsernameExistsException {
+			throws EmailExistsException, UsernameExistsException, PasswordValidationException {
 		if (doesEmailExist(userRegisterRequestDTO.getEmail())) {
 			throw new EmailExistsException(userRegisterRequestDTO.getEmail());
 		}
 		if (doesUsernameExist(userRegisterRequestDTO.getUsername())) {
 			throw new UsernameExistsException(userRegisterRequestDTO.getUsername());
 		}
+		passwordValidation.isPasswordValid(userRegisterRequestDTO.getPassword());
 		AppUser appUser = new AppUser();
 		appUser.setUsername(userRegisterRequestDTO.getUsername());
 		appUser.setEmail(userRegisterRequestDTO.getEmail());
@@ -245,10 +252,11 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public AppUser changeUserPassword(PasswordChangeRequestDTO passwordChangeRequestDTO)
-			throws ValueComprasionException, AccountNotFoundException {
-		if (!passwordChangeRequestDTO.getNewPassword1().equals(passwordChangeRequestDTO.getNewPassword2())) {
-			throw new ValueComprasionException("Passwords are not equal");
-		}
+			throws ValueComprasionException, AccountNotFoundException, PasswordValidationException {
+//		if (!passwordChangeRequestDTO.getNewPassword1().equals(passwordChangeRequestDTO.getNewPassword2())) {
+//			throw new ValueComprasionException("Passwords are not equal");
+//		}
+		passwordValidation.isPasswordValid(passwordChangeRequestDTO.getNewPassword1(), passwordChangeRequestDTO.getNewPassword2());
 		AppUser foundUser = findAppUserById(passwordChangeRequestDTO.getUserId());
 		if (!foundUser.getUsername().equals(getCurrrentUsernameByAuth())) {
 			throw new ValueComprasionException("Auth Failed!");
@@ -289,10 +297,11 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public AppUser resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
-			throws ValueComprasionException, InvalidTokenException, ExpiredTokenException {
-		if (!resetPasswordRequestDTO.getNewPassword1().equals(resetPasswordRequestDTO.getNewPassword2())) {
-			throw new ValueComprasionException("Passwords are not equal");
-		}
+			throws ValueComprasionException, InvalidTokenException, ExpiredTokenException, PasswordValidationException {
+//		if (!resetPasswordRequestDTO.getNewPassword1().equals(resetPasswordRequestDTO.getNewPassword2())) {
+//			throw new ValueComprasionException("Passwords are not equal");
+//		}
+		passwordValidation.isPasswordValid(resetPasswordRequestDTO.getNewPassword1(), resetPasswordRequestDTO.getNewPassword2());
 		ResetPasswordToken foundResetPasswordToken = resetPasswordTokenService
 				.findVerificationTokenByIdAndDeletedStatus(resetPasswordRequestDTO.getToken(), false);
 		if ((foundResetPasswordToken.getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
@@ -304,7 +313,7 @@ public class UserServiceImp implements UserService {
 		foundUser = saveOrUpdateUser(foundUser);
 		return foundUser;
 	}
-
+	
 	@Override
 	public RefreshTokenResponse refreshUserToken() {
 		Authentication auth =  SecurityContextHolder.getContext().getAuthentication();

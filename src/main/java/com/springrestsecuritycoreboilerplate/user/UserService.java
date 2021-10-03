@@ -7,6 +7,7 @@ import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
+import com.springrestsecuritycoreboilerplate.exception.PasswordValidationException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -23,7 +24,7 @@ import com.springrestsecuritycoreboilerplate.response.RefreshTokenResponse;
 public interface UserService {
 
 	AppUser registerUser(UserRegisterRequestDTO userRegisterRequestDTO)
-			throws EmailExistsException, UsernameExistsException;
+			throws EmailExistsException, UsernameExistsException, PasswordValidationException;
 
 	AppUser saveOrUpdateUser(AppUser appUser);
 
@@ -51,13 +52,13 @@ public interface UserService {
 	AppUser findAppUserByEmail(String email) throws AccountNotFoundException;
 
 	AppUser changeUserPassword(PasswordChangeRequestDTO passwordChangeRequestDTO)
-			throws ValueComprasionException, AccountNotFoundException;
+			throws ValueComprasionException, AccountNotFoundException, PasswordValidationException;
 
 	void sendResetPasswordToken(ResetPasswordTokenRequestDTO resetPasswordTokenRequestDTO)
 			throws AccountNotFoundException;
 
 	AppUser resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO)
-			throws ValueComprasionException, InvalidTokenException, ExpiredTokenException;
+			throws ValueComprasionException, InvalidTokenException, ExpiredTokenException, PasswordValidationException;
 
 	RefreshTokenResponse refreshUserToken();
 }
