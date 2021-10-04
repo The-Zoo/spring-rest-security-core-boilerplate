@@ -19,6 +19,7 @@ import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
 import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
+import com.springrestsecuritycoreboilerplate.exception.PasswordValidationException;
 import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
@@ -48,6 +49,8 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 		} catch (UsernameExistsException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		} catch (PasswordValidationException e) {
+			return new ResponseEntity<>(e.getPasswordValidationResult(), HttpStatus.NOT_ACCEPTABLE);
 		}
 	}
 
@@ -149,6 +152,8 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
 		} catch (AccountNotFoundException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		} catch (PasswordValidationException e) {
+			return new ResponseEntity<>(e.getPasswordValidationResult(), HttpStatus.NOT_ACCEPTABLE);
 		}
 
 	}
@@ -175,8 +180,9 @@ public class UserController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 		} catch (ExpiredTokenException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+		} catch (PasswordValidationException e) {
+			return new ResponseEntity<>(e.getPasswordValidationResult(), HttpStatus.NOT_ACCEPTABLE);
 		}
-
 	}
 
 	@RequestMapping(value = "/api/refresh-token", method = RequestMethod.GET)
