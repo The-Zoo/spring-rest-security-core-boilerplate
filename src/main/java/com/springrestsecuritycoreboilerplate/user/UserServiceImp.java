@@ -196,7 +196,7 @@ public class UserServiceImp implements UserService {
 		if (doesUsernameExist(userRegisterRequestDTO.getUsername())) {
 			throw new UsernameExistsException(userRegisterRequestDTO.getUsername());
 		}
-		passwordValidation.isPasswordValid(userRegisterRequestDTO.getPassword());
+		passwordValidation.isPasswordValid(userRegisterRequestDTO.getPassword(), userRegisterRequestDTO.getUsername());
 		AppUser appUser = new AppUser();
 		appUser.setUsername(userRegisterRequestDTO.getUsername());
 		appUser.setEmail(userRegisterRequestDTO.getEmail());
@@ -256,11 +256,11 @@ public class UserServiceImp implements UserService {
 //		if (!passwordChangeRequestDTO.getNewPassword1().equals(passwordChangeRequestDTO.getNewPassword2())) {
 //			throw new ValueComprasionException("Passwords are not equal");
 //		}
-		passwordValidation.isPasswordValid(passwordChangeRequestDTO.getNewPassword1(), passwordChangeRequestDTO.getNewPassword2());
 		AppUser foundUser = findAppUserById(passwordChangeRequestDTO.getUserId());
 		if (!foundUser.getUsername().equals(getCurrrentUsernameByAuth())) {
 			throw new ValueComprasionException("Auth Failed!");
 		}
+		passwordValidation.isPasswordValid(passwordChangeRequestDTO.getNewPassword1(), passwordChangeRequestDTO.getNewPassword2(), foundUser.getUsername());
 		if (!bCryptPasswordEncoder.matches(passwordChangeRequestDTO.getCurrentPassword(), foundUser.getPassword())) {
 			throw new ValueComprasionException("Old password is not correct");
 		}
@@ -301,13 +301,13 @@ public class UserServiceImp implements UserService {
 //		if (!resetPasswordRequestDTO.getNewPassword1().equals(resetPasswordRequestDTO.getNewPassword2())) {
 //			throw new ValueComprasionException("Passwords are not equal");
 //		}
-		passwordValidation.isPasswordValid(resetPasswordRequestDTO.getNewPassword1(), resetPasswordRequestDTO.getNewPassword2());
 		ResetPasswordToken foundResetPasswordToken = resetPasswordTokenService
 				.findVerificationTokenByIdAndDeletedStatus(resetPasswordRequestDTO.getToken(), false);
 		if ((foundResetPasswordToken.getExpiryDate().getTime() - Calendar.getInstance().getTime().getTime()) <= 0) {
 			throw new ExpiredTokenException(foundResetPasswordToken.getExpiryDate());
 		}
 		AppUser foundUser = foundResetPasswordToken.getUser();
+		passwordValidation.isPasswordValid(resetPasswordRequestDTO.getNewPassword1(), resetPasswordRequestDTO.getNewPassword2(), foundUser.getUsername());
 		foundUser.setPassword(bCryptPasswordEncoder.encode(resetPasswordRequestDTO.getNewPassword1()));
 		foundResetPasswordToken.setDeleted(true);
 		foundUser = saveOrUpdateUser(foundUser);
