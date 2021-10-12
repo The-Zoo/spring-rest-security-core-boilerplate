@@ -1,0 +1,53 @@
+server:
+  port: 8081
+  
+spring: 
+  datasource:
+    password: dev
+    username: dev
+    url: jdbc:postgresql://localhost:5432/postgres
+    platform: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: "spring_rest_security_core_boilerplate"
+        temp:
+          use_jdbc_metadata_defaults: false
+        format_sql: true
+    show-sql: true
+    
+  mail:
+    username: 
+    port: 587
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+    host: smtp.gmail.com
+    password:  
+
+app:
+  passwordpolicy:
+    constraint:
+      digit: 1
+      uppercase: 1
+      lowercase: 1
+      specialcharacter: 1
+    minlength: 6
+    maxlength: 15
+
+custom:
+  token:
+    expired:
+      time: 1440
+  jwt-token:
+    expired:
+      time: 864000000
+      refresh:
+        time: 950000000
+
