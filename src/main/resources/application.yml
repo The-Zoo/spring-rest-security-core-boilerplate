@@ -17,7 +17,7 @@ spring:
         temp:
           use_jdbc_metadata_defaults: false
         format_sql: true
-    show-sql: true
+    show-sql: false
     
   mail:
     username: 

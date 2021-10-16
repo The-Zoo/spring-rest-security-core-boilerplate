@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
-import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
 
 @Service
 public class ResetPasswordTokenServiceImp implements ResetPasswordTokenService {

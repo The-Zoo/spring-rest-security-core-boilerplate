@@ -2,7 +2,6 @@ package com.springrestsecuritycoreboilerplate.user;
 
 import javax.validation.Valid;
 
-import com.springrestsecuritycoreboilerplate.response.RefreshTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
-import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
 import com.springrestsecuritycoreboilerplate.exception.PasswordValidationException;
-import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
-import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
 import com.springrestsecuritycoreboilerplate.exception.ValueComprasionException;
 import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
@@ -37,9 +33,9 @@ import com.springrestsecuritycoreboilerplate.response.ResponseObject;
 public class UserController {
 
 	@Autowired
-	UserService userService;
+	private UserService userService;
 
-	ResponseObject responseObject;
+	private ResponseObject responseObject;
 
 	@RequestMapping(value = "/api/register", method = RequestMethod.POST)
 	public ResponseEntity<Object> registerUser(@Valid @RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {

@@ -1,26 +1,15 @@
 package com.springrestsecuritycoreboilerplate.user;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.springrestsecuritycoreboilerplate.response.RefreshTokenResponse;
-import com.springrestsecuritycoreboilerplate.security.JWTAuthenticationFilter;
 import com.springrestsecuritycoreboilerplate.util.SecurityUtil;
 import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,19 +18,15 @@ import com.springrestsecuritycoreboilerplate.common.UserRoleConstants;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
-import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
 import com.springrestsecuritycoreboilerplate.exception.PasswordValidationException;
-import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
-import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
 import com.springrestsecuritycoreboilerplate.exception.ValueComprasionException;
 import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;
 import com.springrestsecuritycoreboilerplate.mail.Mailer;
 import com.springrestsecuritycoreboilerplate.password.PasswordValidation;
-import com.springrestsecuritycoreboilerplate.password.PasswordValidationResult;
 import com.springrestsecuritycoreboilerplate.password.ResetPasswordToken;
 import com.springrestsecuritycoreboilerplate.password.ResetPasswordTokenRepository;
 import com.springrestsecuritycoreboilerplate.password.ResetPasswordTokenService;
@@ -53,29 +38,28 @@ import com.springrestsecuritycoreboilerplate.request.ResendVerificationTokenDTO;
 import com.springrestsecuritycoreboilerplate.request.ResetPasswordRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.ResetPasswordTokenRequestDTO;
 import com.springrestsecuritycoreboilerplate.request.UserRegisterRequestDTO;
-import com.springrestsecuritycoreboilerplate.role.Role;
 import com.springrestsecuritycoreboilerplate.role.RoleRepository;
 import com.springrestsecuritycoreboilerplate.role.RoleService;
 
 @Service
 public class UserServiceImp implements UserService {
 	@Autowired
-	VerificationTokenRepository verificationTokenRepository;
+	private VerificationTokenRepository verificationTokenRepository;
 
 	@Autowired
-	UserRepository userRepository;
+	private UserRepository userRepository;
 
 	@Autowired
-	ResetPasswordTokenRepository resetPasswordTokenRepository;
+	private ResetPasswordTokenRepository resetPasswordTokenRepository;
 
 	@Autowired
-	ResetPasswordTokenService resetPasswordTokenService;
+	private ResetPasswordTokenService resetPasswordTokenService;
 
 	@Autowired
-	RoleService roleService;
+	private RoleService roleService;
 
 	@Autowired
-	RoleRepository roleRepository;
+	private RoleRepository roleRepository;
 
 	@Autowired
 	private Mailer mailer;

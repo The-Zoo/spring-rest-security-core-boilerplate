@@ -1,22 +1,21 @@
 package com.springrestsecuritycoreboilerplate.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
 
 public class LoginResponse {
 
 	@JsonProperty("status")
-	String statusCode;
+	private String statusCode;
 
 	@JsonProperty("data")
-	AppUser user;
+	private AppUser user;
 
 //	@JsonProperty("token")
 //	@JsonIgnore
-	String token;
+	private String token;
 
-	String refreshToken;
+	private String refreshToken;
 
 	public AppUser getUser() {
 		return user;

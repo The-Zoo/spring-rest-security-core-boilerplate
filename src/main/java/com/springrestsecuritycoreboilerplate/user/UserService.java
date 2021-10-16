@@ -1,16 +1,12 @@
 package com.springrestsecuritycoreboilerplate.user;
 
-import java.util.Optional;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.AccountNotModifiedException;
 import com.springrestsecuritycoreboilerplate.exception.EmailExistsException;
-import com.springrestsecuritycoreboilerplate.exception.EmptyValueException;
 import com.springrestsecuritycoreboilerplate.exception.ExpiredTokenException;
 import com.springrestsecuritycoreboilerplate.exception.InvalidTokenException;
 import com.springrestsecuritycoreboilerplate.exception.PasswordValidationException;
-import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.UsernameExistsException;
-import com.springrestsecuritycoreboilerplate.exception.UsernameFoundException;
 import com.springrestsecuritycoreboilerplate.exception.ValueComprasionException;
 import com.springrestsecuritycoreboilerplate.exception.VerificationTokenNotFoundException;
 import com.springrestsecuritycoreboilerplate.exception.VerifiedUserException;

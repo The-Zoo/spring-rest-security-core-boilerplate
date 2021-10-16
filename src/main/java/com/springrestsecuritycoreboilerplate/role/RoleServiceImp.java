@@ -15,7 +15,7 @@ import com.springrestsecuritycoreboilerplate.exception.RoleNotFoundException;
 public class RoleServiceImp implements RoleService {
 
 	@Autowired
-	RoleRepository roleRepository;
+	private RoleRepository roleRepository;
 
 	@Override
 	public Role findRoleByName(String roleName) throws RoleNotFoundException {

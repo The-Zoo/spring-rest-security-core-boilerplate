@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.springrestsecuritycoreboilerplate.password.ResetPasswordToken;
 import com.springrestsecuritycoreboilerplate.registration.VerificationToken;
-import com.springrestsecuritycoreboilerplate.registration.VerificationTokenRepository;
 import com.springrestsecuritycoreboilerplate.user.AppUser;
 
 @Service

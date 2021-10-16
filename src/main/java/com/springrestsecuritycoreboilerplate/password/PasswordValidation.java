@@ -9,7 +9,6 @@ import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
 import org.passay.UsernameRule;
-import org.passay.WhitespaceRule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
