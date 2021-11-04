@@ -13,9 +13,16 @@ import java.util.List;
 @Component
 public class PasswordValidation {
 	
-	@Autowired
-	private ApplicationProperties applicationProperties;
+	private final ApplicationProperties applicationProperties;
 
+	private List<Rule> passwordRuleList = null;
+
+	@Autowired
+	public PasswordValidation(ApplicationProperties applicationProperties) {
+		this.applicationProperties = applicationProperties;
+		passwordRuleList = createRules();
+	}
+	
 	public PasswordValidationResult isPasswordValid(String password1, String password2, String userName) throws PasswordValidationException {
 		if (!password1.equals(password2)) {
 			throw new PasswordValidationException("Passwords are not equal!");
@@ -37,8 +44,8 @@ public class PasswordValidation {
 	}
 
 	private PasswordValidationResult isPasswordValidInConsraints(String password, PasswordValidationResult passwordValidationResult, String userName) {
-		List<Rule> ruleList = createRules();
-		PasswordValidator passwordValidator = new PasswordValidator(ruleList);
+//		List<Rule> passwordRuleList = createRules();
+		PasswordValidator passwordValidator = new PasswordValidator(passwordRuleList);
 		PasswordData passwordData = new PasswordData();
 		passwordData.setPassword(password);
 		passwordData.setUsername(userName);
@@ -48,7 +55,7 @@ public class PasswordValidation {
 		return passwordValidationResult;
 	}
 
-	public List<Rule> createRules () {
+	private List<Rule> createRules () {
 		List<Rule> ruleList = new ArrayList<Rule>();
 		//TODO: make this part dynamic which get value from config
 		ruleList.add(new AllowedRegexRule("^[A-Za-z0-9\\p{Punct}]+$"));
